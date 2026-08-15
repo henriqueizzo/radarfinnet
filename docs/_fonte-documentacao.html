@@ -1,0 +1,1295 @@
+<title>Radar Regulatório Finnet</title>
+<style>
+  /* ============================================================
+     Documentação técnica — Radar Regulatório Finnet
+     Identidade herdada do design system Finnet (GUIA-UX-FINNET.md):
+     azul-marinho #1C2E55 como cor de ação, neutros com viés azul,
+     status em pastel. O tema escuro mantém a família de matiz e
+     desloca o acento para um azul claro que funciona no fundo escuro.
+     ============================================================ */
+
+  @font-face {
+    font-family: 'Chakra Petch Doc';
+    src: url("data:font/woff2;base64,/*FONT_500*/") format('woff2');
+    font-weight: 500;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Chakra Petch Doc';
+    src: url("data:font/woff2;base64,/*FONT_600*/") format('woff2');
+    font-weight: 600;
+    font-display: swap;
+  }
+
+  :root {
+    --ground: #f5f7fb;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --line: #e2e8f0;
+    --line-soft: #eef2f7;
+    --ink: #0f172a;
+    --ink-soft: #475569;
+    --ink-mute: #8a99b0;
+    --accent: #1c2e55;
+    --accent-2: #2f4a7a;
+    --accent-soft: #edf1f8;
+    --accent-line: #c9d5e8;
+    --ok: #047857;
+    --ok-bg: #ecfdf5;
+    --ok-line: #a7f3d0;
+    --warn: #b45309;
+    --warn-bg: #fffbeb;
+    --warn-line: #fde68a;
+    --crit: #b91c1c;
+    --crit-bg: #fef2f2;
+    --crit-line: #fecaca;
+    --code-bg: #f1f5f9;
+    --shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 10px 30px -14px rgba(15, 23, 42, 0.22);
+
+    --display: 'Chakra Petch Doc', ui-sans-serif, system-ui, sans-serif;
+    --body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI Variable Text',
+      'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Consolas,
+      'SF Mono', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --ground: #0a101c;
+      --surface: #111a2b;
+      --surface-2: #162033;
+      --line: #22304b;
+      --line-soft: #1b2740;
+      --ink: #e9eef8;
+      --ink-soft: #aab8ce;
+      --ink-mute: #74849e;
+      --accent: #8fb2ea;
+      --accent-2: #a9c4f2;
+      --accent-soft: #172542;
+      --accent-line: #2a3d63;
+      --ok: #6ee7b7;
+      --ok-bg: #10241d;
+      --ok-line: #1e4d3c;
+      --warn: #fbbf24;
+      --warn-bg: #2a2110;
+      --warn-line: #4d3b14;
+      --crit: #fca5a5;
+      --crit-bg: #2a1416;
+      --crit-line: #532226;
+      --code-bg: #16223a;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 10px 30px -14px rgba(0, 0, 0, 0.7);
+    }
+  }
+
+  :root[data-theme='dark'] {
+    --ground: #0a101c;
+    --surface: #111a2b;
+    --surface-2: #162033;
+    --line: #22304b;
+    --line-soft: #1b2740;
+    --ink: #e9eef8;
+    --ink-soft: #aab8ce;
+    --ink-mute: #74849e;
+    --accent: #8fb2ea;
+    --accent-2: #a9c4f2;
+    --accent-soft: #172542;
+    --accent-line: #2a3d63;
+    --ok: #6ee7b7;
+    --ok-bg: #10241d;
+    --ok-line: #1e4d3c;
+    --warn: #fbbf24;
+    --warn-bg: #2a2110;
+    --warn-line: #4d3b14;
+    --crit: #fca5a5;
+    --crit-bg: #2a1416;
+    --crit-line: #532226;
+    --code-bg: #16223a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 10px 30px -14px rgba(0, 0, 0, 0.7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .pagina {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 24px 96px;
+    display: grid;
+    grid-template-columns: 226px minmax(0, 1fr);
+    gap: 40px;
+    align-items: start;
+  }
+
+  /* ---------- Índice lateral ---------- */
+  .indice {
+    position: sticky;
+    top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-left: 1px solid var(--line);
+    padding-left: 14px;
+  }
+  .indice-titulo {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 8px;
+  }
+  .indice a {
+    display: flex;
+    gap: 9px;
+    text-decoration: none;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    line-height: 1.35;
+    padding: 5px 8px;
+    border-radius: 7px;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .indice a span {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    font-variant-numeric: tabular-nums;
+    flex: none;
+  }
+  .indice a:hover { background: var(--accent-soft); color: var(--accent-2); }
+  .indice a.ativo { background: var(--accent-soft); color: var(--accent-2); font-weight: 600; }
+  .indice a.ativo span { color: var(--accent-2); }
+  .indice a:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 1px; }
+
+  /* ---------- Cabeçalho do documento ---------- */
+  .masthead {
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 22px;
+    margin-bottom: 34px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .masthead h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin: 10px 0 12px;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+  .masthead .resumo {
+    font-size: 1.03rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0 0 20px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 20px; }
+  .chip {
+    font-size: 0.73rem;
+    font-weight: 600;
+    padding: 3px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .chip.ok { background: var(--ok-bg); color: var(--ok); border-color: var(--ok-line); }
+  .chip.warn { background: var(--warn-bg); color: var(--warn); border-color: var(--warn-line); }
+  .chip.info { background: var(--accent-soft); color: var(--accent-2); border-color: var(--accent-line); }
+
+  .ficha {
+    display: grid;
+    /* duas colunas fixas: cabem os endereços inteiros, sem quebrar no meio
+       da palavra, e a grade nunca fica com célula vazia */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .ficha div { background: var(--surface); padding: 11px 14px; }
+  .ficha dt {
+    font-family: var(--mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 3px;
+  }
+  .ficha dd {
+    margin: 0;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+  .ficha dd a { color: var(--accent-2); }
+
+  /* ---------- Seções ---------- */
+  section { scroll-margin-top: 20px; margin-bottom: 52px; }
+  .sec-topo {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 9px;
+    margin-bottom: 20px;
+  }
+  .sec-num {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    flex: none;
+  }
+  h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.42rem;
+    letter-spacing: -0.005em;
+    margin: 0;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--body);
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 28px 0 10px;
+    color: var(--ink);
+  }
+  h4 {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin: 22px 0 8px;
+  }
+  p { margin: 0 0 14px; max-width: 74ch; color: var(--ink-soft); }
+  p strong, li strong { color: var(--ink); font-weight: 600; }
+  ul, ol { margin: 0 0 14px; padding-left: 20px; max-width: 74ch; color: var(--ink-soft); }
+  li { margin-bottom: 6px; }
+  a { color: var(--accent-2); }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.85em;
+    background: var(--code-bg);
+    border: 1px solid var(--line-soft);
+    border-radius: 5px;
+    padding: 1px 5px;
+    color: var(--ink);
+    word-break: break-word;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    margin: 0 0 16px;
+  }
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+
+  /* ---------- Tabelas ---------- */
+  .rolagem { overflow-x: auto; margin: 0 0 18px; border-radius: 12px; border: 1px solid var(--line); }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); min-width: 480px; }
+  th, td {
+    text-align: left;
+    padding: 9px 13px;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 0.84rem;
+    vertical-align: top;
+  }
+  th {
+    background: var(--surface-2);
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    white-space: nowrap;
+  }
+  td { color: var(--ink-soft); }
+  td:first-child { color: var(--ink); font-weight: 600; }
+  tbody tr:last-child td { border-bottom: none; }
+  td code { font-size: 0.78rem; }
+  .num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 1px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+  }
+  .tag.oficial { background: var(--ok-bg); color: var(--ok); border-color: var(--ok-line); }
+  .tag.interna { background: var(--warn-bg); color: var(--warn); border-color: var(--warn-line); }
+  .tag.rasp { background: var(--accent-soft); color: var(--accent-2); border-color: var(--accent-line); }
+
+  /* ---------- Caixas de destaque ---------- */
+  .nota {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    border-radius: 0 12px 12px 0;
+    padding: 13px 16px;
+    margin: 0 0 18px;
+  }
+  .nota.alerta { border-left-color: var(--warn); background: var(--warn-bg); border-color: var(--warn-line); }
+  .nota.risco { border-left-color: var(--crit); background: var(--crit-bg); border-color: var(--crit-line); }
+  .nota p:last-child, .nota ul:last-child { margin-bottom: 0; }
+  .nota-rot {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    display: block;
+    margin-bottom: 5px;
+  }
+  .nota.alerta .nota-rot { color: var(--warn); }
+  .nota.risco .nota-rot { color: var(--crit); }
+
+  /* ---------- Diagrama de arquitetura ---------- */
+  .fluxo {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    flex-wrap: wrap;
+    margin: 0 0 8px;
+  }
+  .etapa {
+    flex: 1 1 168px;
+    min-width: 0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 13px 14px;
+    box-shadow: var(--shadow);
+  }
+  .etapa-rot {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .etapa-nome {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 5px;
+  }
+  .etapa-det { font-size: 0.76rem; color: var(--ink-soft); line-height: 1.45; }
+  .seta {
+    flex: 0 0 46px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: var(--ink-mute);
+  }
+  .seta-linha {
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .seta-rot {
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--ink-mute);
+    line-height: 1.2;
+  }
+
+  /* ---------- Métricas ---------- */
+  .metricas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    gap: 12px;
+    margin: 0 0 18px;
+  }
+  .metrica {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 13px 15px;
+  }
+  .metrica b {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.62rem;
+    line-height: 1.1;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    display: block;
+  }
+  .metrica span { font-size: 0.74rem; color: var(--ink-mute); display: block; margin-top: 2px; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: var(--ink-mute);
+  }
+  footer p { color: var(--ink-mute); font-size: 0.8rem; }
+
+  @media (max-width: 560px) {
+    .ficha { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 940px) {
+    .pagina { grid-template-columns: 1fr; gap: 26px; padding: 22px 16px 64px; }
+    .indice {
+      position: static;
+      border-left: none;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 14px;
+      order: -1;
+    }
+    .seta { flex-basis: 100%; padding: 2px 0; }
+    .seta-linha { transform: rotate(90deg); }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+</style>
+
+<div class="pagina">
+  <nav class="indice" aria-label="Índice do documento">
+    <p class="indice-titulo">Conteúdo</p>
+    <a href="#s1"><span>1</span> Visão geral e escopo</a>
+    <a href="#s2"><span>2</span> Arquitetura</a>
+    <a href="#s3"><span>3</span> Fontes e método de coleta</a>
+    <a href="#s4"><span>4</span> Classificação por temas</a>
+    <a href="#s5"><span>5</span> Modelo de dados</a>
+    <a href="#s6"><span>6</span> Segurança e acesso</a>
+    <a href="#s7"><span>7</span> Fluxo de trabalho</a>
+    <a href="#s8"><span>8</span> Log de atividades</a>
+    <a href="#s9"><span>9</span> Operação</a>
+    <a href="#s10"><span>10</span> Estrutura de arquivos</a>
+    <a href="#s11"><span>11</span> Riscos e manutenção</a>
+    <a href="#s12"><span>12</span> Pendências</a>
+  </nav>
+
+  <main>
+    <header class="masthead">
+      <p class="eyebrow">Documentação técnica · v1.0</p>
+      <h1>Radar Regulatório Finnet</h1>
+      <p class="resumo">
+        Sistema de monitoramento contínuo das fontes regulatórias que afetam a Finnet.
+        Coleta automaticamente publicações do Banco Central, Coaf, Febraban, Open Finance
+        Brasil e Diário Oficial da União, classifica o que é relevante para a operação da
+        empresa e acompanha o tratamento de cada mudança até a entrega.
+      </p>
+      <div class="chips">
+        <span class="chip ok">Site no ar</span>
+        <span class="chip ok">Banco ativo</span>
+        <span class="chip ok">93 itens coletados</span>
+        <span class="chip warn">Coletor automático pendente</span>
+        <span class="chip info">Área: Regulação, Governança e Compliance</span>
+      </div>
+      <dl class="ficha">
+        <div>
+          <dt>Endereço</dt>
+          <dd><a href="https://henriqueizzo.github.io/radarfinnet/">henriqueizzo.github.io/radarfinnet</a></dd>
+        </div>
+        <div>
+          <dt>Repositório</dt>
+          <dd><a href="https://github.com/henriqueizzo/radarfinnet">github.com/henriqueizzo/radarfinnet</a></dd>
+        </div>
+        <div>
+          <dt>Banco de dados</dt>
+          <dd>Supabase · <code>giipvdzsxfxomnhnmyvd</code></dd>
+        </div>
+        <div>
+          <dt>Última atualização</dt>
+          <dd>15 de agosto de 2026</dd>
+        </div>
+      </dl>
+    </header>
+
+    <!-- 1 ------------------------------------------------------ -->
+    <section id="s1">
+      <div class="sec-topo"><span class="sec-num">01</span><h2>Visão geral e escopo</h2></div>
+
+      <p>
+        O time de Regulação, Governança e Compliance precisa saber, sem atraso, quando um
+        regulador publica algo que afeta a Finnet — e precisa provar que aquilo foi avaliado.
+        O acompanhamento manual desses portais é lento, depende de alguém lembrar de olhar e
+        não deixa rastro auditável. O Radar resolve os dois problemas: a coleta é automática e
+        cada decisão fica registrada com autor e data.
+      </p>
+
+      <h3>Por que estas fontes</h3>
+      <p>
+        A Finnet é <strong>instituição de pagamento autorizada pelo Banco Central na modalidade
+        iniciadora de transação de pagamento (ITP)</strong>, autorizada em 2023 e homologada no
+        Open Finance via Pix em dezembro de 2024. Esse perfil define quem regula a empresa e,
+        por consequência, quais fontes o sistema vigia e quais temas ele considera relevantes
+        (detalhados na <a href="#s4">seção 4</a>).
+      </p>
+
+      <h3>O que o sistema faz</h3>
+      <ul>
+        <li><strong>Coleta</strong> publicações de cinco fontes oficiais, sem intervenção humana.</li>
+        <li><strong>Classifica</strong> cada item com os temas regulatórios que importam à Finnet.</li>
+        <li><strong>Publica</strong> tudo num feed cronológico com busca e filtros.</li>
+        <li><strong>Acompanha</strong> as mudanças relevantes num quadro de quatro etapas, com responsável, observações e histórico.</li>
+        <li><strong>Registra</strong> quem fez o quê e quando, para fins de auditoria interna.</li>
+      </ul>
+
+      <h3>O que o sistema não faz</h3>
+      <p>
+        Delimitar isso é parte do controle. O Radar <strong>não emite parecer jurídico</strong>,
+        não interpreta normas e não decide impacto — ele detecta, organiza e registra; a análise
+        é humana. Não usa inteligência artificial em nenhuma etapa: a classificação é por regra
+        explícita e auditável. Não substitui a leitura da norma na fonte oficial — todo item traz
+        o link para o documento original. E não cobre reguladores fora do escopo mapeado
+        (ANPD, CVM e Susep, por exemplo, não são monitorados hoje).
+      </p>
+    </section>
+
+    <!-- 2 ------------------------------------------------------ -->
+    <section id="s2">
+      <div class="sec-topo"><span class="sec-num">02</span><h2>Arquitetura</h2></div>
+
+      <p>
+        Três peças independentes, sem servidor próprio para manter. Se o robô parar, o site
+        continua no ar com os dados já coletados; se o site cair, a coleta continua alimentando
+        o banco.
+      </p>
+
+      <div class="fluxo">
+        <div class="etapa">
+          <span class="etapa-rot">Origem</span>
+          <span class="etapa-nome">5 fontes</span>
+          <span class="etapa-det">BCB, Coaf, Febraban, Open Finance e DOU — feeds e APIs públicas</span>
+        </div>
+        <div class="seta" aria-hidden="true">
+          <span class="seta-linha">→</span>
+          <span class="seta-rot">Atom<br />JSON</span>
+        </div>
+        <div class="etapa">
+          <span class="etapa-rot">Coleta</span>
+          <span class="etapa-nome">Coletor</span>
+          <span class="etapa-det">Node.js 20 em GitHub Actions, a cada 3 horas</span>
+        </div>
+        <div class="seta" aria-hidden="true">
+          <span class="seta-linha">→</span>
+          <span class="seta-rot">chave<br />secreta</span>
+        </div>
+        <div class="etapa">
+          <span class="etapa-rot">Dados</span>
+          <span class="etapa-nome">Supabase</span>
+          <span class="etapa-det">PostgreSQL com RLS, autenticação e uma Edge Function</span>
+        </div>
+        <div class="seta" aria-hidden="true">
+          <span class="seta-linha">→</span>
+          <span class="seta-rot">chave<br />pública</span>
+        </div>
+        <div class="etapa">
+          <span class="etapa-rot">Interface</span>
+          <span class="etapa-nome">Portal</span>
+          <span class="etapa-det">React + Vite servido pelo GitHub Pages</span>
+        </div>
+      </div>
+      <p style="font-size: 0.8rem; color: var(--ink-mute)">
+        O coletor grava com a chave <code>service_role</code>, que nunca chega ao navegador.
+        O portal lê com a chave pública <code>anon</code>, limitada pelas regras do banco.
+      </p>
+
+      <h3>Componentes e responsabilidades</h3>
+      <div class="rolagem">
+        <table>
+          <thead>
+            <tr><th>Componente</th><th>Tecnologia</th><th>Responsabilidade</th><th>Onde executa</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Coletor</td>
+              <td>Node.js 20, <code>fast-xml-parser</code></td>
+              <td>Buscar, normalizar, classificar e gravar sem duplicar</td>
+              <td>GitHub Actions</td>
+            </tr>
+            <tr>
+              <td>Banco</td>
+              <td>PostgreSQL (Supabase)</td>
+              <td>Persistência e regras de acesso por linha (RLS)</td>
+              <td>Supabase · ca-central-1</td>
+            </tr>
+            <tr>
+              <td>Autenticação</td>
+              <td>Supabase Auth</td>
+              <td>Login por e-mail e senha, sessão e bloqueio de acesso</td>
+              <td>Supabase</td>
+            </tr>
+            <tr>
+              <td>Função administrativa</td>
+              <td>Deno / Edge Function</td>
+              <td>Criar usuários, redefinir senhas, ativar e desativar acessos</td>
+              <td>Supabase</td>
+            </tr>
+            <tr>
+              <td>Portal</td>
+              <td>React 18, Vite 6, <code>@dnd-kit</code></td>
+              <td>Feed, quadro de acompanhamento, administração</td>
+              <td>GitHub Pages</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="nota">
+        <span class="nota-rot">Decisão de projeto</span>
+        <p>
+          Não há backend próprio. Toda a lógica de acesso vive nas regras do PostgreSQL, e a
+          única operação privilegiada — administrar usuários — roda numa função isolada dentro
+          do Supabase. Isso reduz a superfície de ataque e elimina custo de infraestrutura:
+          o sistema inteiro opera dentro dos planos gratuitos do GitHub e do Supabase.
+        </p>
+      </div>
+    </section>
+
+    <!-- 3 ------------------------------------------------------ -->
+    <section id="s3">
+      <div class="sec-topo"><span class="sec-num">03</span><h2>Fontes e método de coleta</h2></div>
+
+      <p>
+        Todas as URLs abaixo foram testadas com requisições reais em 15/08/2026. Nenhuma fonte
+        exige chave de API, cadastro ou pagamento, e nenhuma depende de leitura de HTML por
+        tags ou de navegador automatizado: os dados chegam sempre em formato estruturado.
+      </p>
+
+      <div class="metricas">
+        <div class="metrica"><b>64%</b><span>via API oficial</span></div>
+        <div class="metrica"><b>36%</b><span>via API interna</span></div>
+        <div class="metrica"><b>0%</b><span>varredura de página</span></div>
+        <div class="metrica"><b>93</b><span>itens na 1ª carga</span></div>
+      </div>
+
+      <h3>Classificação do método</h3>
+      <ul>
+        <li><span class="tag oficial">API oficial</span> &nbsp;Endpoint publicado e mantido pelo próprio órgão para consumo automatizado. Mudanças tendem a vir com aviso.</li>
+        <li><span class="tag interna">API interna</span> &nbsp;Endpoint público mas não documentado — é o mesmo que o site do órgão usa para montar suas páginas. Funciona bem, porém pode mudar sem aviso.</li>
+        <li><span class="tag rasp">Raspagem</span> &nbsp;Extração de dados embutidos na página. Aqui, recorte de um bloco JSON dentro do HTML — não interpretação de tags.</li>
+      </ul>
+
+      <div class="rolagem">
+        <table>
+          <thead>
+            <tr><th>Fonte</th><th>Conteúdo</th><th class="num">1ª carga</th><th>Método</th><th>Endpoint</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Banco Central</td>
+              <td>Resoluções BCB e CMN, Instruções Normativas</td>
+              <td class="num">10</td>
+              <td><span class="tag oficial">API oficial</span></td>
+              <td><code>bcb.gov.br/api/feed/app/normativos/normativos</code> · Atom</td>
+            </tr>
+            <tr>
+              <td>Banco Central</td>
+              <td>Atos e comunicados</td>
+              <td class="num">10</td>
+              <td><span class="tag oficial">API oficial</span></td>
+              <td><code>bcb.gov.br/api/feed/app/demaisnormativos/atosecomunicados</code> · Atom</td>
+            </tr>
+            <tr>
+              <td>Banco Central</td>
+              <td>Notícias institucionais</td>
+              <td class="num">10</td>
+              <td><span class="tag oficial">API oficial</span></td>
+              <td><code>bcb.gov.br/api/feed/sitebcb/sitefeeds/noticias</code> · Atom</td>
+            </tr>
+            <tr>
+              <td>Open Finance</td>
+              <td>Alterações no wiki de desenvolvedores e releases das especificações</td>
+              <td class="num">30</td>
+              <td><span class="tag oficial">API oficial</span></td>
+              <td><code>openfinancebrasil.atlassian.net/wiki/rest/api</code> · JSON<br /><code>github.com/OpenBanking-Brasil</code> · Atom</td>
+            </tr>
+            <tr>
+              <td>Coaf</td>
+              <td>Notícias e comunicados Siscoaf</td>
+              <td class="num">25</td>
+              <td><span class="tag interna">API interna</span></td>
+              <td><code>gov.br/coaf/++api++/@search</code> · JSON (padrão Plone)</td>
+            </tr>
+            <tr>
+              <td>Febraban</td>
+              <td>Notícias do setor bancário</td>
+              <td class="num">8</td>
+              <td><span class="tag interna">API interna</span></td>
+              <td><code>portal.febraban.org.br/Noticias/GetItems</code> · JSON</td>
+            </tr>
+            <tr>
+              <td>DOU</td>
+              <td>Resoluções do Coaf publicadas na Seção 1</td>
+              <td class="num">0</td>
+              <td><span class="tag rasp">Raspagem</span></td>
+              <td><code>in.gov.br/leiturajornal</code> · JSON embutido no HTML</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        O DOU trouxe zero itens na primeira carga porque o Coaf não publicou nada na Seção 1
+        nos três dias anteriores — o mecanismo funcionou, apenas não havia o que trazer. Ele
+        existe porque as resoluções do Coaf não têm feed próprio: o Diário Oficial é a única
+        via confiável para capturá-las.
+      </p>
+
+      <h3>Comportamento da coleta</h3>
+      <ul>
+        <li><strong>Tolerante a falhas:</strong> cada fonte é buscada isoladamente. Se uma cair, as demais seguem e o erro fica no log da execução.</li>
+        <li><strong>Sem duplicatas:</strong> a URL do documento é chave única no banco. Reexecutar a coleta é seguro — itens já conhecidos são ignorados silenciosamente.</li>
+        <li><strong>Janela de segurança:</strong> o DOU é consultado nos três últimos dias a cada rodada, cobrindo fins de semana e feriados sem gerar repetição.</li>
+        <li><strong>Versionamento do wiki:</strong> páginas do Open Finance entram com o número da versão na URL, de modo que uma revisão da mesma página conta como novidade.</li>
+      </ul>
+
+      <div class="nota alerta">
+        <span class="nota-rot">Transparência de método</span>
+        <p>
+          Três pontos que devem ser conhecidos por quem audita o processo:
+        </p>
+        <ul>
+          <li>Nas fontes <code>gov.br</code> e Febraban o coletor se identifica com um cabeçalho de navegador, porque esses portais rejeitam clientes que se declaram robôs. Nenhuma autenticação é burlada e nenhum conteúdo restrito é acessado.</li>
+          <li>O site institucional <code>openfinancebrasil.org.br</code> está protegido por firewall e recusa acesso automatizado. A decisão foi <strong>não contornar</strong> essa proteção; usa-se o wiki oficial e o repositório público, que cobrem o mesmo conteúdo.</li>
+          <li>O portal do Coaf migrou para uma plataforma nova e seus feeds RSS antigos foram desativados. O endpoint em uso é o da API padrão da plataforma, acessível sem autenticação.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 4 ------------------------------------------------------ -->
+    <section id="s4">
+      <div class="sec-topo"><span class="sec-num">04</span><h2>Classificação por temas</h2></div>
+
+      <p>
+        Cada item coletado recebe zero ou mais etiquetas de tema. A regra é deliberadamente
+        simples e determinística: o título e o resumo são convertidos para minúsculas e têm os
+        acentos removidos; se alguma palavra-chave do catálogo aparecer como palavra inteira,
+        o tema é aplicado. Não há inteligência artificial, serviço externo, custo por item nem
+        variação entre execuções — <strong>o mesmo texto produz sempre o mesmo resultado</strong>,
+        e qualquer pessoa pode conferir por que um item foi marcado.
+      </p>
+
+      <p>
+        Na primeira carga, <strong>61 dos 93 itens</strong> receberam ao menos um tema. O
+        catálogo abaixo é o critério vigente e vive em <code>coletor/temas.js</code>.
+      </p>
+
+      <div class="rolagem">
+        <table>
+          <thead>
+            <tr><th>Tema</th><th>Palavras-chave</th><th>Por que importa à Finnet</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Pix</td>
+              <td><code>pix</code>, <code>bolepix</code></td>
+              <td>A empresa inicia pagamentos Pix como ITP</td>
+            </tr>
+            <tr>
+              <td>Open Finance</td>
+              <td><code>open finance</code>, <code>open banking</code>, <code>iniciação/iniciador/iniciadora de pagamento</code>, <code>consentimento</code></td>
+              <td>Homologada como ITP no ecossistema desde 2024</td>
+            </tr>
+            <tr>
+              <td>Instituições de Pagamento</td>
+              <td><code>instituição(ões) de pagamento</code>, <code>arranjo(s) de pagamento</code>, <code>conta de pagamento</code></td>
+              <td>Regime de autorização e funcionamento da própria empresa</td>
+            </tr>
+            <tr>
+              <td>PLD/FT</td>
+              <td><code>lavagem de dinheiro</code>, <code>pld</code>, <code>siscoaf</code>, <code>coaf</code>, <code>financiamento do terrorismo</code>, <code>operações suspeitas</code></td>
+              <td>Dever de comunicação ao Coaf e supervisão do BCB</td>
+            </tr>
+            <tr>
+              <td>Duplicata Escritural</td>
+              <td><code>duplicata escritural</code>, <code>duplicatas escriturais</code>, <code>duplicata eletrônica</code>, <code>registradora</code></td>
+              <td>Produto ativo da empresa nesse ecossistema</td>
+            </tr>
+            <tr>
+              <td>Cobrança/Boleto</td>
+              <td><code>boleto</code>, <code>cobrança</code>, <code>dda</code>, <code>núclea</code>, <code>recebíveis</code>, <code>antecipação de recebíveis</code></td>
+              <td>Núcleo dos produtos de cobrança e risco sacado</td>
+            </tr>
+            <tr>
+              <td>LGPD</td>
+              <td><code>lgpd</code>, <code>dados pessoais</code>, <code>proteção de dados</code>, <code>anpd</code></td>
+              <td>Tráfego de dados financeiros e consentimentos</td>
+            </tr>
+            <tr>
+              <td>Cibersegurança</td>
+              <td><code>segurança cibernética</code>, <code>cibersegurança</code>, <code>incidente cibernético</code>, <code>resiliência operacional</code></td>
+              <td>Obrigações de segurança aplicáveis a instituições de pagamento</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="nota">
+        <span class="nota-rot">Limitação conhecida</span>
+        <p>
+          Por ser baseada em palavras, a regra pode deixar passar uma norma escrita com
+          vocabulário incomum (falso negativo) ou marcar algo apenas tangencial (falso positivo).
+          É uma escolha consciente: prefere-se um critério transparente e ajustável a um
+          classificador opaco. Por isso <strong>o feed mostra todos os itens</strong>, com ou sem
+          tema — a etiqueta prioriza a leitura, não filtra o que a equipe pode ver. Ampliar o
+          catálogo é editar uma lista e rodar a coleta novamente.
+        </p>
+      </div>
+    </section>
+
+    <!-- 5 ------------------------------------------------------ -->
+    <section id="s5">
+      <div class="sec-topo"><span class="sec-num">05</span><h2>Modelo de dados</h2></div>
+
+      <p>
+        Cinco tabelas em PostgreSQL, criadas pelo script <code>supabase/schema.sql</code>.
+        O script é idempotente: pode ser reexecutado sem destruir dados.
+      </p>
+
+      <h4>noticias — o acervo coletado</h4>
+      <div class="rolagem">
+        <table>
+          <thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead>
+          <tbody>
+            <tr><td>id</td><td>uuid</td><td>Chave primária</td></tr>
+            <tr><td>fonte</td><td>text</td><td>Banco Central, Coaf, Febraban ou Open Finance</td></tr>
+            <tr><td>categoria</td><td>text</td><td>Normativo, Comunicado, Notícia, Wiki ou Release</td></tr>
+            <tr><td>titulo, resumo</td><td>text</td><td>Texto normalizado, sem marcação HTML</td></tr>
+            <tr><td>url</td><td>text</td><td><strong>Única</strong> — é o que impede duplicatas</td></tr>
+            <tr><td>data_publicacao</td><td>timestamptz</td><td>Data da fonte, não da coleta</td></tr>
+            <tr><td>temas</td><td>text[]</td><td>Etiquetas aplicadas pela regra da seção 4</td></tr>
+            <tr><td>criado_em</td><td>timestamptz</td><td>Quando o item entrou no acervo</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>radar_itens — o quadro de acompanhamento</h4>
+      <div class="rolagem">
+        <table>
+          <thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead>
+          <tbody>
+            <tr><td>noticia_id</td><td>uuid</td><td>Única — cada notícia gera no máximo um card</td></tr>
+            <tr><td>status</td><td>text</td><td>Restrito a Encontrado, Avaliando, Desenvolvimento ou Entregue</td></tr>
+            <tr><td>responsavel</td><td>text</td><td>Quem conduz a avaliação</td></tr>
+            <tr><td>observacoes</td><td>text</td><td>Impacto, prazos e decisões da equipe</td></tr>
+            <tr><td>atualizado_em</td><td>timestamptz</td><td>Preenchido por gatilho a cada alteração</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>radar_eventos — histórico de movimentações</h4>
+      <p>
+        Uma linha por mudança de etapa, com status de origem e destino, e-mail de quem moveu e
+        data e hora. É a trilha que responde <em>quem decidiu o quê e quando</em>.
+      </p>
+
+      <h4>perfis — espelho dos usuários</h4>
+      <p>
+        Uma linha por conta, criada automaticamente por gatilho no momento do cadastro. Guarda
+        nome, e-mail, se é administrador e se o acesso está ativo. O <strong>primeiro usuário
+        cadastrado torna-se administrador</strong> — depois disso, só um administrador promove
+        outro.
+      </p>
+
+      <h4>atividades — log de uso</h4>
+      <p>
+        Registra login, envio ao Radar, mudança de status, edição e remoção de card, com
+        usuário, detalhe e referência opcional à notícia. Detalhado na
+        <a href="#s8">seção 8</a>.
+      </p>
+
+      <div class="nota">
+        <span class="nota-rot">Integridade</span>
+        <p>
+          Remover uma notícia remove em cascata seu card e o histórico dele; remover um card
+          preserva a notícia no feed. No log de atividades, a referência à notícia é anulada em
+          vez de apagar o registro — <strong>o evento de auditoria nunca desaparece</strong>.
+        </p>
+      </div>
+    </section>
+
+    <!-- 6 ------------------------------------------------------ -->
+    <section id="s6">
+      <div class="sec-topo"><span class="sec-num">06</span><h2>Segurança e acesso</h2></div>
+
+      <h3>Separação de chaves</h3>
+      <div class="rolagem">
+        <table>
+          <thead><tr><th>Chave</th><th>Poder</th><th>Onde vive</th><th>Exposição</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>anon</code></td>
+              <td>Nenhum por si só — sujeita às regras do banco</td>
+              <td><code>src/lib/config.js</code>, versionado</td>
+              <td>Pública por natureza</td>
+            </tr>
+            <tr>
+              <td><code>service_role</code></td>
+              <td>Total, ignora as regras do banco</td>
+              <td>Secrets do GitHub e arquivo local ignorado pelo git</td>
+              <td>Nunca no código nem no navegador</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        A chave pública ser pública não é uma falha: ela é apenas o endereço de entrada. Toda a
+        proteção real está nas regras de acesso por linha (RLS) descritas a seguir.
+      </p>
+
+      <h3>Regras de acesso por linha</h3>
+      <div class="rolagem">
+        <table>
+          <thead><tr><th>Tabela</th><th>Usuário ativo</th><th>Administrador</th><th>Coletor</th></tr></thead>
+          <tbody>
+            <tr><td>noticias</td><td>Só leitura</td><td>Só leitura</td><td>Grava</td></tr>
+            <tr><td>radar_itens</td><td>Lê e edita</td><td>Lê e edita</td><td>Cria</td></tr>
+            <tr><td>radar_eventos</td><td>Lê e registra</td><td>Lê e registra</td><td>—</td></tr>
+            <tr><td>perfis</td><td>Só leitura</td><td>Lê e altera</td><td>—</td></tr>
+            <tr><td>atividades</td><td>Só grava</td><td>Lê tudo</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Duas consequências importantes desse desenho. <strong>Ninguém pela interface consegue
+        criar ou alterar uma notícia</strong> — o acervo só é escrito pelo coletor, o que garante
+        que o conteúdo do feed corresponde ao que a fonte publicou. E <strong>um usuário comum
+        não consegue apagar o próprio rastro</strong>: ele grava atividades, mas não as lê nem
+        as altera.
+      </p>
+
+      <h3>Controle de acesso das pessoas</h3>
+      <ul>
+        <li>Login por e-mail e senha; o cadastro público está desativado — contas só nascem por ação de um administrador.</li>
+        <li>Um acesso desativado é bloqueado em duas camadas: no login e nas próprias regras do banco, de modo que uma sessão já aberta perde o acesso aos dados.</li>
+        <li>As abas <strong>Usuários</strong> e <strong>Atividade</strong> só existem para administradores.</li>
+        <li>Um administrador não pode rebaixar nem desativar a si mesmo, o que evita o sistema ficar sem dono.</li>
+      </ul>
+
+      <h3>Operações privilegiadas</h3>
+      <p>
+        Criar usuário, redefinir senha, ativar, desativar e promover exigem poder administrativo
+        que não pode existir no navegador. Essas ações rodam na Edge Function
+        <code>admin-usuarios</code>, dentro do Supabase, que exige sessão válida e confere na
+        tabela de perfis se quem chamou é administrador ativo antes de executar qualquer coisa.
+      </p>
+    </section>
+
+    <!-- 7 ------------------------------------------------------ -->
+    <section id="s7">
+      <div class="sec-topo"><span class="sec-num">07</span><h2>Fluxo de trabalho</h2></div>
+
+      <p>O portal tem duas áreas de trabalho e duas administrativas.</p>
+
+      <h3>Feed de novidades</h3>
+      <p>
+        Lista cronológica de tudo que foi coletado, com busca textual que ignora acentos e
+        filtros por fonte, tipo e tema. Normativos recebem destaque visual. Qualquer item pode
+        ser enviado ao Radar manualmente, e o feed indica quais já estão lá.
+      </p>
+
+      <h3>Radar de mudanças</h3>
+      <p>
+        Quadro com quatro etapas, percorridas por arraste ou pelos botões de avanço e retorno:
+      </p>
+      <div class="rolagem">
+        <table>
+          <thead><tr><th>Etapa</th><th>Significado</th><th>Origem</th></tr></thead>
+          <tbody>
+            <tr><td>Encontrado</td><td>Detectado, ainda não avaliado</td><td>Automático ou envio manual</td></tr>
+            <tr><td>Avaliando</td><td>Em análise de impacto pela equipe</td><td>Ação humana</td></tr>
+            <tr><td>Desenvolvimento</td><td>Adequação em andamento</td><td>Ação humana</td></tr>
+            <tr><td>Entregue</td><td>Conformidade concluída</td><td>Ação humana</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        <strong>Entrada automática:</strong> ao final de cada coleta, todo item que seja da
+        categoria <em>Normativo</em> <u>e</u> tenha ao menos um tema relevante entra
+        automaticamente como <em>Encontrado</em>. Na primeira carga isso trouxe dois itens —
+        a Resolução BCB nº 584 (Instituições de Pagamento) e a Instrução Normativa BCB nº 766
+        (Pix). Notícias e comunicados nunca entram sozinhos: dependem de decisão humana, para
+        o quadro não virar um segundo feed.
+      </p>
+
+      <p>
+        Cada card abre uma janela com o resumo, o link para o documento oficial, os botões de
+        etapa, responsável, observações e o histórico completo de movimentações. As alterações
+        aparecem na tela imediatamente e são confirmadas no banco em seguida; se a gravação
+        falhar, o erro é exibido e o estado real é recarregado.
+      </p>
+    </section>
+
+    <!-- 8 ------------------------------------------------------ -->
+    <section id="s8">
+      <div class="sec-topo"><span class="sec-num">08</span><h2>Log de atividades</h2></div>
+
+      <p>
+        Visível apenas para administradores, com recortes de 7, 30 ou 90 dias. Traz o resumo por
+        usuário — último acesso, total de eventos, itens tocados, dias ativos e tempo estimado
+        de uso — e, ao clicar numa pessoa, o detalhe por dia e a lista de eventos.
+      </p>
+
+      <div class="rolagem">
+        <table>
+          <thead><tr><th>Evento</th><th>Quando é gravado</th></tr></thead>
+          <tbody>
+            <tr><td>Login</td><td>Autenticação bem-sucedida</td></tr>
+            <tr><td>Envio ao Radar</td><td>Item promovido do feed para o quadro</td></tr>
+            <tr><td>Mudança de status</td><td>Card muda de etapa, com origem e destino</td></tr>
+            <tr><td>Edição de card</td><td>Responsável ou observações alterados</td></tr>
+            <tr><td>Remoção do Radar</td><td>Card excluído do quadro</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="nota alerta">
+        <span class="nota-rot">Como ler o tempo de uso</span>
+        <p>
+          O sistema não cronometra sessões. O tempo é <strong>estimado</strong>: eventos
+          separados por menos de 30 minutos são agrupados numa mesma sessão, soma-se a duração
+          de cada sessão e acrescentam-se 5 minutos por sessão para cobrir a leitura após o
+          último clique. Serve para comparar intensidade de uso entre pessoas e períodos —
+          <strong>não é registro de jornada de trabalho</strong> e não deve ser usado como tal.
+        </p>
+      </div>
+
+      <p>
+        O log falha em silêncio por decisão de projeto: se a gravação de um evento não funcionar,
+        a ação do usuário não é interrompida. A prioridade é não travar o trabalho da equipe por
+        causa da auditoria.
+      </p>
+    </section>
+
+    <!-- 9 ------------------------------------------------------ -->
+    <section id="s9">
+      <div class="sec-topo"><span class="sec-num">09</span><h2>Operação</h2></div>
+
+      <h3>Comandos</h3>
+      <div class="rolagem">
+        <table>
+          <thead><tr><th>Comando</th><th>O que faz</th></tr></thead>
+          <tbody>
+            <tr><td><code>npm run dev</code></td><td>Sobe o portal localmente para desenvolvimento</td></tr>
+            <tr><td><code>npm run coletar</code></td><td>Executa uma coleta e grava no banco</td></tr>
+            <tr><td><code>npm run coletar:teste</code></td><td>Testa as cinco fontes sem gravar nada</td></tr>
+            <tr><td><code>npm run build</code></td><td>Compila o portal para produção</td></tr>
+            <tr><td><code>npm run deploy</code></td><td>Compila e publica no GitHub Pages</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Agendamento</h3>
+      <p>
+        O arquivo <code>.github/workflows/coletor.yml</code> executa a coleta
+        <strong>a cada 3 horas</strong> (oito vezes por dia), e também pode ser disparado
+        manualmente pela aba Actions do repositório. O horário do agendamento é em UTC. Uma
+        execução típica leva menos de um minuto.
+      </p>
+
+      <h3>Modo demonstração</h3>
+      <p>
+        Se o portal for aberto sem as chaves configuradas, ele entra automaticamente em modo
+        demonstração: mostra dados de exemplo, dispensa login e não grava nada. Serve para
+        apresentar o sistema a terceiros e para testar a interface sem tocar em dados reais.
+      </p>
+
+      <h3>Recuperação</h3>
+      <ul>
+        <li><strong>Fonte fora do ar:</strong> nada a fazer — a próxima execução recupera o que ficou para trás, já que a coleta olha uma janela de dias e não apenas o instante atual.</li>
+        <li><strong>Reconstruir o banco:</strong> executar novamente <code>supabase/schema.sql</code> e depois uma coleta. O acervo histórico anterior a essa data, porém, não é recuperável pelas fontes — os feeds só expõem os itens recentes.</li>
+        <li><strong>Republicar o portal:</strong> <code>npm run deploy</code>.</li>
+      </ul>
+    </section>
+
+    <!-- 10 ----------------------------------------------------- -->
+    <section id="s10">
+      <div class="sec-topo"><span class="sec-num">10</span><h2>Estrutura de arquivos</h2></div>
+
+      <pre><code>finnet-radar/
+├─ coletor/                   robô de coleta (Node.js)
+│  ├─ coletar.js              orquestra as fontes e grava no banco
+│  ├─ temas.js                catálogo de palavras-chave (seção 4)
+│  ├─ config.local.exemplo.js modelo de credenciais locais
+│  └─ fontes/
+│     ├─ bcb.js               feeds Atom do Banco Central
+│     ├─ coaf.js              API do portal gov.br
+│     ├─ febraban.js          endpoint de notícias
+│     ├─ openfinance.js       wiki Confluence + GitHub
+│     ├─ dou.js               Diário Oficial da União
+│     └─ util.js              rede, parsing e limpeza de texto
+├─ src/                       portal (React + Vite)
+│  ├─ App.jsx                 sessão, perfil e navegação
+│  ├─ TelaLogin.jsx           autenticação
+│  ├─ abas/
+│  │  ├─ Feed.jsx             feed de novidades
+│  │  ├─ Radar.jsx            quadro de acompanhamento
+│  │  ├─ Usuarios.jsx         gestor de usuários
+│  │  └─ Atividade.jsx        log de uso
+│  ├─ lib/                    cliente do banco, log, utilidades, demonstração
+│  ├─ finnet-ux.css           design system Finnet
+│  └─ radar.css               complementos deste sistema
+├─ supabase/
+│  ├─ schema.sql              tabelas, gatilhos e regras de acesso
+│  └─ functions/admin-usuarios/index.ts
+├─ docs/
+│  ├─ COMO-CONFIGURAR.md      passo a passo de instalação
+│  └─ fontes-de-dados.md      endpoints verificados em detalhe
+└─ .github/workflows/coletor.yml</code></pre>
+    </section>
+
+    <!-- 11 ----------------------------------------------------- -->
+    <section id="s11">
+      <div class="sec-topo"><span class="sec-num">11</span><h2>Riscos e manutenção</h2></div>
+
+      <div class="rolagem">
+        <table>
+          <thead><tr><th>Risco</th><th>Efeito</th><th>Mitigação</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Endpoints não documentados mudam</td>
+              <td>Coaf ou Febraban param de trazer itens</td>
+              <td>Falha isolada e registrada no log; as demais fontes seguem. Correção é ajustar um arquivo.</td>
+            </tr>
+            <tr>
+              <td>DNS do <code>in.gov.br</code></td>
+              <td>DOU falha em algumas redes corporativas</td>
+              <td>Usar DNS público. No GitHub Actions o acesso funciona normalmente.</td>
+            </tr>
+            <tr>
+              <td>Actions suspende agendamentos</td>
+              <td>Coleta para após 60 dias sem atividade no repositório</td>
+              <td>Reativar pela aba Actions; qualquer commit renova o prazo.</td>
+            </tr>
+            <tr>
+              <td>Repositório público</td>
+              <td>Exigência do plano gratuito do GitHub Pages</td>
+              <td>Nenhuma credencial no código; dados só com login.</td>
+            </tr>
+            <tr>
+              <td>Cobertura das fontes</td>
+              <td>ANPD, CVM e Susep não são monitoradas</td>
+              <td>Decisão de escopo — ampliável com um arquivo por fonte nova.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Rotina sugerida</h3>
+      <ul>
+        <li><strong>Semanal:</strong> conferir na aba Actions se as execuções continuam verdes.</li>
+        <li><strong>Mensal:</strong> revisar o catálogo de temas à luz do que a equipe encontrou na mão — todo falso negativo é uma palavra-chave faltando.</li>
+        <li><strong>Trimestral:</strong> revisar a lista de usuários e desativar quem saiu da equipe.</li>
+      </ul>
+    </section>
+
+    <!-- 12 ----------------------------------------------------- -->
+    <section id="s12">
+      <div class="sec-topo"><span class="sec-num">12</span><h2>Pendências</h2></div>
+
+      <div class="nota risco">
+        <span class="nota-rot">Em aberto</span>
+        <p>
+          <strong>O agendamento automático ainda não está ativo.</strong> O arquivo do robô
+          existe e está testado, mas o envio dele ao GitHub exige uma permissão adicional na
+          conexão da conta (escopo <code>workflow</code>) que ainda não foi concedida. Até lá,
+          a coleta precisa ser disparada manualmente com <code>npm run coletar</code>.
+        </p>
+      </div>
+
+      <h3>Evoluções possíveis</h3>
+      <ul>
+        <li>Aviso por e-mail ou Teams quando um normativo com tema relevante for detectado.</li>
+        <li>Painel de indicadores: tempo médio entre detecção e entrega, volume por fonte e por tema.</li>
+        <li>Exportação do quadro em PDF para relatório de comitê.</li>
+        <li>Prazo de resposta por card, com alerta visual de vencimento.</li>
+        <li>Novas fontes: ANPD, CVM, Susep e a agenda regulatória do BCB.</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>
+        Radar Regulatório Finnet · documentação técnica v1.0 · 15 de agosto de 2026.
+        Informações de arquitetura, endpoints e regras conferidas contra o código e o
+        ambiente em produção nesta data. Credenciais de acesso não constam deste documento.
+      </p>
+    </footer>
+  </main>
+</div>
+
+<script>
+  // Destaca no índice a seção que está sendo lida.
+  const alvos = document.querySelectorAll('main section[id]')
+  const links = new Map(
+    [...document.querySelectorAll('.indice a')].map((a) => [a.getAttribute('href').slice(1), a]),
+  )
+  const observador = new IntersectionObserver(
+    (entradas) => {
+      entradas.forEach((e) => {
+        if (!e.isIntersecting) return
+        links.forEach((a) => a.classList.remove('ativo'))
+        links.get(e.target.id)?.classList.add('ativo')
+      })
+    },
+    { rootMargin: '-15% 0px -70% 0px' },
+  )
+  alvos.forEach((s) => observador.observe(s))
+</script>
