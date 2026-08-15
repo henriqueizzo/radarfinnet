@@ -1,0 +1,12 @@
+# Dependências e build
+node_modules/
+dist/
+
+# Segredos — NUNCA versionar
+coletor/config.local.js
+.env
+.env.*
+
+# Sistema
+.DS_Store
+Thumbs.db

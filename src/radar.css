@@ -1,0 +1,169 @@
+/* Complementos específicos do Radar Regulatório.
+   Usa apenas os tokens do finnet-ux.css — nenhuma cor nova. */
+
+/* Logomarca (mesma do LicitaFinnet: public/finnet-logo.png) */
+.logo-chip {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border-radius: var(--raio-sm);
+  padding: 0;
+}
+.login-logo-chip { align-self: center; }
+
+/* Feed: lista central estilo rede social */
+.feed-lista {
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+/* No feed o título pode quebrar em até 2 linhas (no kanban fica 1) */
+.feed-lista .cartao-titulo {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Etiquetas de tema no cartão */
+.temas-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 2px 0 6px;
+}
+
+/* Janela de detalhes: campos e seções */
+.secao-rotulo {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gelo);
+  margin: 16px 0 6px;
+}
+.janela-corpo input[type='text'],
+.janela-corpo textarea {
+  width: 100%;
+  font-family: var(--corpo);
+  font-size: 0.9rem;
+  color: var(--texto);
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--raio-sm);
+  background: var(--campo-fundo);
+  resize: vertical;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.janela-corpo input[type='text']:focus,
+.janela-corpo textarea:focus {
+  outline: none;
+  border-color: var(--azul-luz);
+  box-shadow: var(--foco);
+}
+.janela-rodape {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* Botões de status na janela de detalhes */
+.status-opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.status-opcoes button {
+  border: 1px solid var(--linha);
+  background: #fff;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-family: var(--corpo);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.status-opcoes button:hover { background: var(--azul-suave); border-color: #bfdbfe; color: var(--azul-texto); }
+.status-opcoes button:focus-visible { outline: none; box-shadow: var(--foco); }
+.status-opcoes button.ativo { background: var(--azul); border-color: var(--azul); color: #fff; }
+
+/* Histórico de movimentações */
+.historico {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--texto-suave);
+}
+.historico strong { color: var(--texto); font-weight: 600; }
+
+/* ---------- Aba Usuários (só admin) — portada do LicitaFinnet ---------- */
+.usuarios { display: flex; flex-direction: column; gap: 18px; }
+.usuarios .acoes { justify-content: flex-start; margin-top: 0; }
+.usuarios .acoes button:disabled { opacity: 0.45; cursor: not-allowed; }
+.usuarios-novo strong { font-family: var(--display); color: var(--texto); font-size: 0.95rem; }
+
+/* ---------- Aba Atividade (só admin) — portada do LicitaFinnet ---------- */
+.atividade { display: flex; flex-direction: column; gap: 18px; }
+.atividade-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.atividade-legenda { font-size: 0.8rem; color: var(--texto-suave); max-width: 640px; }
+.atividade tr.clicavel { cursor: pointer; }
+.atividade tr.selecionada td { background: var(--azul-suave); }
+.atividade-tipos { display: flex; flex-wrap: wrap; gap: 4px; max-width: 420px; }
+.atividade-pilula { font-size: 0.68rem; padding: 2px 8px; }
+.atividade-detalhe { color: var(--texto-mudo); font-size: 0.78rem; font-weight: 400; }
+.atividade-obj {
+  max-width: 340px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atividade-eventos { display: flex; flex-direction: column; gap: 12px; }
+.atividade-eventos strong { font-family: var(--display); color: var(--texto); font-size: 0.95rem; }
+.atividade-subtitulo {
+  font-family: var(--display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 10px;
+}
+.atividade-uso-dia { max-width: 520px; }
+
+/* ---------- Ajustes de celular (complementam o finnet-ux.css) ---------- */
+@media (max-width: 720px) {
+  /* a área do usuário cabe na MESMA linha da logo (sem linha extra) */
+  .marca { width: auto; flex: 1 1 auto; }
+
+  /* iPhone dá zoom automático em campos com fonte < 16px — isso evita */
+  .campo-busca input,
+  .filtro-select,
+  .login-card input,
+  .formulario input,
+  .formulario select,
+  .formulario textarea,
+  .janela-corpo input[type='text'],
+  .janela-corpo textarea {
+    font-size: 16px;
+  }
+
+  /* botões de status com alvo de toque maior */
+  .status-opcoes button { padding: 8px 14px; }
+}
+
+@media (max-width: 480px) {
+  /* telas bem estreitas: só a logo, sem o subtítulo */
+  .marca-sub { display: none; }
+}
