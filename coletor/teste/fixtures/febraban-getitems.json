@@ -1,0 +1,23 @@
+{
+  "Items": [
+    {
+      "IdTexto": 3899,
+      "Descricaop": "<strong>Febraban</strong> lança guia sobre Pix Automático",
+      "Resumop": "<p>O guia orienta os bancos sobre a nova funcionalidade do arranjo.</p>",
+      "Publicar": "\/Date(1723680000000)\/"
+    },
+    {
+      "IdTexto": 3900,
+      "Descricaop": "",
+      "Resumop": "Notícia sem título não deve entrar no radar.",
+      "Publicar": "\/Date(1723766400000)\/"
+    },
+    {
+      "IdTexto": 3901,
+      "Descricaop": "Sistema financeiro debate Open Finance",
+      "Resumop": "Encontro anual do setor.",
+      "Publicar": null
+    }
+  ],
+  "TotalItems": 3
+}

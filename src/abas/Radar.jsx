@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -9,33 +9,27 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
-import { supabase } from '../lib/supabaseClient.js'
-import { registrarAtividade } from '../lib/atividade.js'
-import { tempoRelativo, dataCompleta, iniciais } from '../lib/util.js'
+import { STATUS, ROTULOS, FAIXAS, VAZIOS } from '../lib/statusRadar.js'
+import { moverStatusCard } from '../lib/api.js'
+import { baixarCsv } from '../lib/csv.js'
+import {
+  tempoRelativo,
+  dataCompleta,
+  dataCurta,
+  iniciais,
+  temasDaNoticia,
+  dataParaArquivo,
+  ehInforme,
+} from '../lib/util.js'
+import { useAvisos } from '../componentes/Avisos.jsx'
+import JanelaDetalhe from '../componentes/JanelaDetalhe.jsx'
+import ResumoNoticia from '../componentes/ResumoNoticia.jsx'
 
-const STATUS = ['Encontrado', 'Avaliando', 'Desenvolvimento', 'Entregue']
-const ROTULOS = {
-  Encontrado: '🔎 Encontrado',
-  Avaliando: '🧐 Avaliando',
-  Desenvolvimento: '🛠️ Desenvolvimento',
-  Entregue: '✅ Entregue',
-}
-const FAIXAS = {
-  Encontrado: 'faixa-amarelo',
-  Avaliando: 'faixa-azul',
-  Desenvolvimento: 'faixa-azul',
-  Entregue: 'faixa-verde',
-}
-const VAZIOS = {
-  Encontrado: 'Nada por aqui — o coletor adiciona normativos sozinho, ou use "Enviar ao Radar" no Feed.',
-  Avaliando: 'Nenhuma mudança em avaliação.',
-  Desenvolvimento: 'Nada em desenvolvimento no momento.',
-  Entregue: 'Nenhuma entrega concluída ainda.',
-}
-
-export default function Radar({ itens, setItens, aoAtualizar, usuario, demo }) {
+// O card aberto (abertoId) vem do App.jsx: assim ele entra na URL e o link
+// compartilhado no Teams abre direto com a janela de detalhes na tela.
+export default function Radar({ itens, setItens, aoAtualizar, usuario, demo, abertoId, aoAbrirCard }) {
+  const { toast } = useAvisos()
   const [arrastandoId, setArrastandoId] = useState(null)
-  const [abertoId, setAbertoId] = useState(null)
 
   const sensores = useSensors(
     // 6px de movimento separam o clique do arraste; no toque, segurar 250ms
@@ -46,39 +40,55 @@ export default function Radar({ itens, setItens, aoAtualizar, usuario, demo }) {
   if (itens === null) return <p className="pendente">Carregando o radar…</p>
 
   const arrastando = itens.find((i) => i.id === arrastandoId)
-  const aberto = itens.find((i) => i.id === abertoId)
+  // String() dos dois lados: o id vindo da URL chega como texto
+  const aberto = itens.find((i) => String(i.id) === String(abertoId))
 
   // Atualização otimista: a tela muda na hora; se a API falhar, recarrega
   async function mover(item, novoStatus) {
     if (novoStatus === item.status) return
-    const statusAnterior = item.status
     setItens((atuais) => atuais.map((i) => (i.id === item.id ? { ...i, status: novoStatus } : i)))
-    if (demo) return // no modo demonstração, só muda na tela
-    const { error } = await supabase
-      .from('radar_itens')
-      .update({ status: novoStatus })
-      .eq('id', item.id)
-    if (error) {
-      alert(`Não consegui mover o card: ${error.message}`)
+    const r = await moverStatusCard({ demo, item, novoStatus, usuario })
+    if (!r.ok) {
+      toast(`Não consegui mover o card: ${r.erro}`, 'erro')
       aoAtualizar()
-      return
     }
-    await supabase.from('radar_eventos').insert({
-      radar_id: item.id,
-      de_status: statusAnterior,
-      para_status: novoStatus,
-      usuario_email: usuario,
+  }
+
+  // Baixa o quadro inteiro em CSV (Excel): um card por linha, na ordem das colunas
+  function exportarCsv() {
+    const linhas = [...itens]
+      .sort((a, b) => STATUS.indexOf(a.status) - STATUS.indexOf(b.status))
+      .map((i) => [
+        ROTULOS[i.status] ?? i.status,
+        i.noticia?.titulo ?? '',
+        i.noticia?.fonte ?? '',
+        i.noticia?.categoria ?? '',
+        dataCompleta(i.noticia?.data_publicacao),
+        i.responsavel ?? '',
+        i.observacoes ?? '',
+        temasDaNoticia(i.noticia).todos.join(', '),
+        i.noticia?.url ?? '',
+      ])
+    baixarCsv({
+      nomeArquivo: `radar-mudancas-${dataParaArquivo()}.csv`,
+      cabecalhos: ['Status', 'Título', 'Fonte', 'Categoria', 'Publicada em', 'Responsável', 'Observações', 'Temas', 'Link'],
+      linhas,
     })
-    registrarAtividade({
-      usuario,
-      tipo: 'mover_status',
-      detalhe: `${statusAnterior} → ${novoStatus} — ${item.noticia?.titulo ?? ''}`,
-      noticiaId: item.noticia_id,
-    })
+    toast(`CSV baixado com ${linhas.length} card(s) — abre direto no Excel.`, 'ok')
   }
 
   return (
     <>
+      <div className="radar-topo">
+        <button
+          className="usuario-btn"
+          onClick={exportarCsv}
+          disabled={itens.length === 0}
+          title="Baixa um arquivo CSV (Excel) com os cards, status, responsáveis e observações"
+        >
+          ⬇️ Exportar CSV
+        </button>
+      </div>
       <DndContext
         sensors={sensores}
         onDragStart={(e) => setArrastandoId(e.active.id)}
@@ -98,7 +108,7 @@ export default function Radar({ itens, setItens, aoAtualizar, usuario, demo }) {
               itens={itens.filter((i) => i.status === status)}
               arrastandoId={arrastandoId}
               mover={mover}
-              abrir={setAbertoId}
+              abrir={aoAbrirCard}
             />
           ))}
         </div>
@@ -112,7 +122,7 @@ export default function Radar({ itens, setItens, aoAtualizar, usuario, demo }) {
       {aberto && (
         <JanelaDetalhe
           item={aberto}
-          fechar={() => setAbertoId(null)}
+          fechar={() => aoAbrirCard(null)}
           mover={mover}
           aoAtualizar={aoAtualizar}
           usuario={usuario}
@@ -170,11 +180,13 @@ function CartaoRadar({ item, classe = '', mover, abrir }) {
           {item.responsavel ? iniciais(item.responsavel) : '+'}
         </span>
       </div>
-      {noticia.resumo && <p className="cartao-resumo">{noticia.resumo}</p>}
+      <ResumoNoticia resumo={noticia.resumo} />
       <div className="cartao-meta">
         <span>{noticia.fonte}</span>
         <span title={dataCompleta(noticia.data_publicacao)}>
-          {tempoRelativo(noticia.data_publicacao)}
+          {ehInforme(noticia)
+            ? `📨 Data de envio: ${dataCurta(noticia.data_publicacao)}`
+            : tempoRelativo(noticia.data_publicacao)}
         </span>
       </div>
       {mover && (
@@ -212,170 +224,5 @@ function CartaoRadar({ item, classe = '', mover, abrir }) {
         </div>
       )}
     </article>
-  )
-}
-
-function JanelaDetalhe({ item, fechar, mover, aoAtualizar, usuario, demo, setItens }) {
-  const noticia = item.noticia ?? {}
-  const [responsavel, setResponsavel] = useState(item.responsavel ?? '')
-  const [observacoes, setObservacoes] = useState(item.observacoes ?? '')
-  const [salvando, setSalvando] = useState(false)
-  const [expandida, setExpandida] = useState(false)
-  const [minimizada, setMinimizada] = useState(false)
-  const [historico, setHistorico] = useState(null)
-
-  useEffect(() => {
-    if (demo) {
-      setHistorico([]) // no modo demonstração não há histórico gravado
-      return
-    }
-    supabase
-      .from('radar_eventos')
-      .select('*')
-      .eq('radar_id', item.id)
-      .order('quando', { ascending: false })
-      .then(({ data }) => setHistorico(data ?? []))
-  }, [item.id, item.status, demo])
-
-  async function salvar() {
-    if (demo) {
-      setItens((atuais) =>
-        atuais.map((i) => (i.id === item.id ? { ...i, responsavel, observacoes } : i)),
-      )
-      fechar()
-      return
-    }
-    setSalvando(true)
-    const { error } = await supabase
-      .from('radar_itens')
-      .update({ responsavel, observacoes })
-      .eq('id', item.id)
-    setSalvando(false)
-    if (error) {
-      alert(`Não consegui salvar: ${error.message}`)
-      return
-    }
-    registrarAtividade({
-      usuario,
-      tipo: 'editar_card',
-      detalhe: noticia.titulo,
-      noticiaId: item.noticia_id,
-    })
-    await aoAtualizar()
-    fechar()
-  }
-
-  async function remover() {
-    const confirmou = window.confirm(
-      'Remover este item do Radar? O card, as observações e o histórico serão perdidos — não tem desfazer. (A notícia continua no Feed.)',
-    )
-    if (!confirmou) return
-    if (demo) {
-      setItens((atuais) => atuais.filter((i) => i.id !== item.id))
-      fechar()
-      return
-    }
-    const { error } = await supabase.from('radar_itens').delete().eq('id', item.id)
-    if (error) {
-      alert(`Não consegui remover: ${error.message}`)
-      return
-    }
-    registrarAtividade({
-      usuario,
-      tipo: 'remover_card',
-      detalhe: noticia.titulo,
-      noticiaId: item.noticia_id,
-    })
-    await aoAtualizar()
-    fechar()
-  }
-
-  if (minimizada) {
-    return (
-      <div className="janela-min" onClick={() => setMinimizada(false)} title="Clique para restaurar">
-        <span className="janela-min-titulo">🎯 {noticia.titulo}</span>
-      </div>
-    )
-  }
-
-  return (
-    <div className={`modal-fundo ${expandida ? 'modal-fundo-max' : ''}`} onClick={fechar}>
-      <div className={`janela ${expandida ? 'janela-max' : ''}`} onClick={(e) => e.stopPropagation()}>
-        <div className="janela-cabecalho">
-          <strong title={noticia.titulo}>{noticia.titulo}</strong>
-          <div className="janela-botoes">
-            <button aria-label="Minimizar" onClick={() => setMinimizada(true)}>─</button>
-            <button aria-label="Expandir" onClick={() => setExpandida((v) => !v)}>⛶</button>
-            <button aria-label="Fechar" onClick={fechar}>✕</button>
-          </div>
-        </div>
-        <div className="janela-corpo">
-          <div className="cartao-meta" style={{ marginBottom: 10 }}>
-            <span>{noticia.fonte}</span>
-            <span>{noticia.categoria}</span>
-            <span title={dataCompleta(noticia.data_publicacao)}>
-              {tempoRelativo(noticia.data_publicacao)}
-            </span>
-          </div>
-          {noticia.resumo && <p style={{ fontSize: '0.88rem', lineHeight: 1.5 }}>{noticia.resumo}</p>}
-          <p style={{ marginTop: 8 }}>
-            <a href={noticia.url} target="_blank" rel="noreferrer">
-              Abrir documento na fonte ↗
-            </a>
-          </p>
-
-          <p className="secao-rotulo">Status</p>
-          <div className="status-opcoes">
-            {STATUS.map((s) => (
-              <button key={s} className={s === item.status ? 'ativo' : ''} onClick={() => mover(item, s)}>
-                {ROTULOS[s]}
-              </button>
-            ))}
-          </div>
-
-          <p className="secao-rotulo">Responsável</p>
-          <input
-            type="text"
-            value={responsavel}
-            onChange={(e) => setResponsavel(e.target.value)}
-            placeholder="Nome de quem vai cuidar desta mudança"
-          />
-
-          <p className="secao-rotulo">Observações</p>
-          <textarea
-            rows={4}
-            value={observacoes}
-            onChange={(e) => setObservacoes(e.target.value)}
-            placeholder="Impacto para a Finnet, prazos, decisões da equipe…"
-          />
-
-          <p className="secao-rotulo">Histórico</p>
-          {historico === null && <p className="pendente">Carregando o histórico…</p>}
-          {historico?.length === 0 && <p className="dash-vazio">Sem movimentações registradas.</p>}
-          {historico?.length > 0 && (
-            <div className="historico">
-              {historico.map((ev) => (
-                <span key={ev.id}>
-                  {ev.de_status ? `${ev.de_status} → ` : ''}
-                  <strong>{ev.para_status}</strong>
-                  {' — '}
-                  {ev.usuario_email || 'coletor automático'} ·{' '}
-                  <span title={dataCompleta(ev.quando)}>{tempoRelativo(ev.quando)}</span>
-                </span>
-              ))}
-            </div>
-          )}
-
-          <div className="janela-rodape">
-            <button className="usuario-btn btn-excluir" onClick={remover}>
-              🗑️ Remover do Radar
-            </button>
-            <button className="primario" onClick={salvar} disabled={salvando}>
-              {salvando ? '⏳ Salvando…' : 'Salvar alterações'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   )
 }

@@ -9,8 +9,26 @@ export const CABECALHO_NAVEGADOR = {
   'Accept-Language': 'pt-BR,pt;q=0.9',
 }
 
+// Toda busca tem limite de 30 segundos; se a rede falhar ou o tempo
+// estourar, espera um pouco e tenta UMA vez de novo antes de desistir.
+async function buscarComRetentativa(url, opcoes = {}) {
+  let ultimoErro
+  for (let tentativa = 1; tentativa <= 2; tentativa++) {
+    try {
+      return await fetch(url, { ...opcoes, signal: AbortSignal.timeout(30000) })
+    } catch (erro) {
+      ultimoErro = erro
+      if (tentativa === 1) {
+        console.warn(`  aviso: ${url} falhou (${erro.message}) — tentando de novo em 2s`)
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+      }
+    }
+  }
+  throw ultimoErro
+}
+
 export async function buscarJson(url, extras = {}) {
-  const resposta = await fetch(url, {
+  const resposta = await buscarComRetentativa(url, {
     headers: { ...CABECALHO_NAVEGADOR, Accept: 'application/json', ...extras },
   })
   if (!resposta.ok) throw new Error(`HTTP ${resposta.status} em ${url}`)
@@ -18,7 +36,7 @@ export async function buscarJson(url, extras = {}) {
 }
 
 export async function buscarTexto(url, extras = {}) {
-  const resposta = await fetch(url, { headers: { ...CABECALHO_NAVEGADOR, ...extras } })
+  const resposta = await buscarComRetentativa(url, { headers: { ...CABECALHO_NAVEGADOR, ...extras } })
   if (!resposta.ok) throw new Error(`HTTP ${resposta.status} em ${url}`)
   return resposta.text()
 }

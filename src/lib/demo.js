@@ -57,6 +57,21 @@ export const NOTICIAS_DEMO = [
     criado_em: horasAtras(2),
   },
   {
+    id: 'demo-n11',
+    fonte: 'Open Finance',
+    categoria: 'Comunicado',
+    titulo: '🌙 [Open Finance] Informa #937',
+    resumo:
+      '• Disponibilização do painel [BSC] Produtos\n' +
+      '• Encerramento do período de convivência da API Pagamentos\n' +
+      '• Reforço – Registro das autodeclarações nos Planos de Adequação\n' +
+      '• Consulta a Dados na PAD – Janela de Manutenção Programada na Plataforma Analítica de Dados em 20/08/2026',
+    url: 'http://eepurl.com/DIXiwOA2FU',
+    data_publicacao: horasAtras(120),
+    temas: ['Open Finance'],
+    criado_em: horasAtras(2),
+  },
+  {
     id: 'demo-n5',
     fonte: 'Open Finance',
     categoria: 'Wiki',
@@ -177,6 +192,16 @@ export const RADAR_DEMO = [
     criado_em: horasAtras(300),
     atualizado_em: horasAtras(24),
     noticia: noticia('demo-n7'),
+  },
+  {
+    id: 'demo-r5',
+    noticia_id: 'demo-n11',
+    status: 'Avaliando',
+    responsavel: 'Equipe Regulação',
+    observacoes: 'Verificar impacto do encerramento da convivência da API Pagamentos nos conectores.',
+    criado_em: horasAtras(100),
+    atualizado_em: horasAtras(20),
+    noticia: noticia('demo-n11'),
   },
   {
     id: 'demo-r4',

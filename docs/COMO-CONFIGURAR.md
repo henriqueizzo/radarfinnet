@@ -7,8 +7,14 @@ Siga na ordem. Só precisa fazer isso UMA vez.
 1. Entre em <https://supabase.com> e crie um projeto novo
    (ex.: nome `finnet-radar`, região `South America (São Paulo)`).
 2. Menu lateral → **SQL Editor** → **New query** → cole o arquivo
-   `supabase/schema.sql` INTEIRO → botão **Run**. Isso cria as 3 tabelas
+   `supabase/schema.sql` INTEIRO → botão **Run**. Isso cria as tabelas
    e as regras de segurança.
+
+   > 🔄 **Banco criado antes de 16/08/2026?** Rode a migração
+   > `supabase/migracao-2026-08-16.sql` do mesmo jeito: cole o arquivo
+   > INTEIRO no **SQL Editor** e clique em **Run** (pode rodar mais de
+   > uma vez sem erro). Quem cria o banco do zero com o `schema.sql`
+   > atual **não** precisa — ele já inclui essas mudanças.
 3. Menu **Authentication → Sign In / Up**: deixe só **Email** ativado e
    **desligue** a opção de cadastro público ("Allow new users to sign up"),
    para que só você crie os usuários.
@@ -77,6 +83,36 @@ Para testar as fontes sem gravar nada: `npm run coletar:teste`.
 3. Aba **Actions** → aceite habilitar os workflows → escolha
    **"Coletor do Radar"** → **Run workflow** para testar na hora.
 4. Pronto: ele passa a rodar sozinho **a cada 3 horas**.
+
+## Alertas por e-mail/Teams (opcional, ~10 min)
+
+Quando um normativo novo entra no Radar, o robô pode avisar o time por
+e-mail e/ou por mensagem no Teams. Sem os segredos abaixo, ele apenas
+escreve "Digest desativado" no log e segue normalmente.
+
+**E-mail (via Resend):**
+
+1. Crie uma conta gratuita em <https://resend.com>.
+2. Menu **API Keys → Create API Key** e copie a chave (começa com `re_`).
+3. No GitHub (**Settings → Secrets and variables → Actions**), crie:
+   - `RESEND_API_KEY` → a chave copiada
+   - `DIGEST_PARA` → e-mail(s) de destino, separados por vírgula
+     (ex.: `ana@finnet.com.br, joao@finnet.com.br`)
+
+> ⚠️ Sem um domínio próprio verificado no Resend, o plano gratuito só
+> entrega para o e-mail da PRÓPRIA conta. Para enviar ao time todo,
+> verifique um domínio em **Domains** e ajuste o remetente no
+> `coletor/coletar.js` (campo `from`).
+
+**Teams (via webhook):**
+
+1. No canal do Teams: **⋯ → Fluxos de trabalho (Workflows)** →
+   escolha **"Postar em um canal quando uma solicitação de webhook
+   for recebida"** → conclua e copie a URL gerada.
+2. No GitHub, crie o secret `TEAMS_WEBHOOK_URL` com essa URL.
+
+Pode usar só um dos dois, ou os dois. Para testar na hora: aba
+**Actions → Coletor do Radar → Run workflow**.
 
 ## Parte 5 — Publicar o site (opcional, ~5 min)
 

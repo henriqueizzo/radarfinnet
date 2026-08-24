@@ -17,11 +17,24 @@ create table if not exists noticias (
   url             text not null unique,         -- o unique evita duplicar a mesma notícia
   data_publicacao timestamptz,
   temas           text[] not null default '{}', -- temas Finnet detectados (Pix, Open Finance, PLD/FT...)
+  descartada      boolean not null default false, -- true = time descartou a notícia do feed
+  temas_manuais   text[],                       -- temas adicionados à mão pelo time
+  -- prioridade CALCULADA pelo banco a partir da categoria (o feed ordena por ela):
+  -- 1 = Normativo · 2 = Comunicado · 3 = todo o resto
+  prioridade      smallint generated always as (
+                    case categoria
+                      when 'Normativo'  then 1
+                      when 'Comunicado' then 2
+                      else 3
+                    end
+                  ) stored,
   criado_em       timestamptz not null default now()
 );
 
 create index if not exists idx_noticias_data  on noticias (data_publicacao desc);
 create index if not exists idx_noticias_fonte on noticias (fonte);
+create index if not exists idx_noticias_temas on noticias using gin (temas); -- busca rápida por tema
+create index if not exists idx_noticias_prioridade on noticias (prioridade, data_publicacao desc);
 
 -- ---------- Tabela 2: os cards do Radar (o "CRM") ----------
 create table if not exists radar_itens (
@@ -70,6 +83,16 @@ create table if not exists atividades (
 );
 
 create index if not exists idx_atividades_data on atividades (criado_em desc);
+
+-- ---------- Tabela 6: execuções do robô coletor (saúde das coletas) ----------
+create table if not exists coletas_execucoes (
+  id          bigint generated always as identity primary key,
+  fonte       text,                        -- 'Banco Central', 'Coaf', 'Febraban'...
+  iniciada_em timestamptz default now(),
+  duracao_ms  int,                         -- quanto tempo levou (milissegundos)
+  itens       int,                         -- quantos itens a fonte trouxe
+  erro        text                         -- null = deu tudo certo
+);
 
 -- ---------- atualizado_em automático ao editar um card ----------
 create or replace function marcar_atualizado()
@@ -131,22 +154,65 @@ $$ language sql;
 -- O robô coletor usa a chave service_role, que passa por cima do RLS
 -- (por isso ela é secreta e só vive nos Secrets do GitHub).
 
-alter table noticias      enable row level security;
-alter table radar_itens   enable row level security;
-alter table radar_eventos enable row level security;
-alter table perfis        enable row level security;
-alter table atividades    enable row level security;
+alter table noticias          enable row level security;
+alter table radar_itens       enable row level security;
+alter table radar_eventos     enable row level security;
+alter table perfis            enable row level security;
+alter table atividades        enable row level security;
+alter table coletas_execucoes enable row level security;
 
+-- (o "drop policy if exists" antes de cada policy permite rodar
+--  este arquivo de novo, quantas vezes precisar, sem dar erro)
+
+drop policy if exists "equipe le noticias" on noticias;
 create policy "equipe le noticias"      on noticias      for select to authenticated using (usuario_ativo());
-create policy "equipe le radar"         on radar_itens   for select to authenticated using (usuario_ativo());
-create policy "equipe cria no radar"    on radar_itens   for insert to authenticated with check (usuario_ativo());
-create policy "equipe atualiza radar"   on radar_itens   for update to authenticated using (usuario_ativo()) with check (usuario_ativo());
-create policy "equipe remove do radar"  on radar_itens   for delete to authenticated using (usuario_ativo());
-create policy "equipe le historico"     on radar_eventos for select to authenticated using (usuario_ativo());
-create policy "equipe grava historico"  on radar_eventos for insert to authenticated with check (usuario_ativo());
 
+-- Curadoria: o time logado e ativo pode ATUALIZAR notícias
+-- (arquivar/restaurar e temas manuais). Sem esta policy, o RLS
+-- bloquearia a gravação em silêncio (sucesso com 0 linhas).
+drop policy if exists "equipe faz curadoria" on noticias;
+create policy "equipe faz curadoria"    on noticias      for update to authenticated using (usuario_ativo()) with check (usuario_ativo());
+
+drop policy if exists "equipe le radar" on radar_itens;
+create policy "equipe le radar"         on radar_itens   for select to authenticated using (usuario_ativo());
+
+drop policy if exists "equipe cria no radar" on radar_itens;
+create policy "equipe cria no radar"    on radar_itens   for insert to authenticated with check (usuario_ativo());
+
+drop policy if exists "equipe atualiza radar" on radar_itens;
+create policy "equipe atualiza radar"   on radar_itens   for update to authenticated using (usuario_ativo()) with check (usuario_ativo());
+
+drop policy if exists "equipe remove do radar" on radar_itens;
+create policy "equipe remove do radar"  on radar_itens   for delete to authenticated using (usuario_ativo());
+
+drop policy if exists "equipe le historico" on radar_eventos;
+create policy "equipe le historico"     on radar_eventos for select to authenticated using (usuario_ativo());
+
+-- Auditoria confiável: além de estar ativo, o e-mail gravado tem que
+-- ser o e-mail de quem está logado (auth.email()).
+drop policy if exists "equipe grava historico" on radar_eventos;
+create policy "equipe grava historico"  on radar_eventos for insert to authenticated with check (usuario_ativo() and usuario_email = auth.email());
+
+drop policy if exists "equipe ve perfis" on perfis;
 create policy "equipe ve perfis"        on perfis        for select to authenticated using (usuario_ativo());
+
+drop policy if exists "admin edita perfis" on perfis;
 create policy "admin edita perfis"      on perfis        for update to authenticated using (usuario_admin()) with check (usuario_admin());
 
-create policy "equipe registra atividade" on atividades  for insert to authenticated with check (usuario_ativo());
+drop policy if exists "equipe registra atividade" on atividades;
+create policy "equipe registra atividade" on atividades  for insert to authenticated with check (usuario_ativo() and usuario_email = auth.email());
+
+drop policy if exists "admin le atividades" on atividades;
 create policy "admin le atividades"       on atividades  for select to authenticated using (usuario_admin());
+
+-- coletas_execucoes: equipe lê; só o robô (service_role) grava/atualiza.
+-- Obs.: a service_role já passa por cima do RLS; as policies abaixo
+-- deixam essa intenção explícita e documentada.
+drop policy if exists "equipe le coletas" on coletas_execucoes;
+create policy "equipe le coletas"       on coletas_execucoes for select to authenticated using (usuario_ativo());
+
+drop policy if exists "robo grava coletas" on coletas_execucoes;
+create policy "robo grava coletas"      on coletas_execucoes for insert to service_role with check (true);
+
+drop policy if exists "robo atualiza coletas" on coletas_execucoes;
+create policy "robo atualiza coletas"   on coletas_execucoes for update to service_role using (true) with check (true);

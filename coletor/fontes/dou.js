@@ -11,13 +11,11 @@ export async function coletarDOU() {
 
   // Olha os últimos 3 dias (cobre fim de semana e feriados; repetições são
   // descartadas pelo banco, que não aceita URL duplicada).
+  // O GitHub Actions roda em UTC — "hoje" precisa ser o dia de Brasília.
   for (let diasAtras = 0; diasAtras < 3; diasAtras++) {
-    const dia = new Date(Date.now() - diasAtras * 24 * 60 * 60 * 1000)
-    const data = [
-      String(dia.getDate()).padStart(2, '0'),
-      String(dia.getMonth() + 1).padStart(2, '0'),
-      dia.getFullYear(),
-    ].join('-')
+    const iso = diaEmBrasilia(diasAtras)
+    const [ano, mes, dia] = iso.split('-')
+    const data = `${dia}-${mes}-${ano}`
 
     try {
       const html = await buscarTexto(`https://www.in.gov.br/leiturajornal?data=${data}&secao=do1`)
@@ -33,7 +31,7 @@ export async function coletarDOU() {
           titulo: limparHtml(materia.title ?? materia.artType ?? 'Publicação no DOU'),
           resumo: resumir(materia.content ?? ''),
           url: `https://www.in.gov.br/web/dou/-/${materia.urlTitle}`,
-          data_publicacao: dia.toISOString().slice(0, 10),
+          data_publicacao: iso,
         })
       }
     } catch (erro) {
@@ -46,9 +44,15 @@ export async function coletarDOU() {
   return itens
 }
 
+// "Hoje menos N dias" no fuso America/Sao_Paulo, como 'AAAA-MM-DD'.
+export function diaEmBrasilia(diasAtras) {
+  const momento = new Date(Date.now() - diasAtras * 24 * 60 * 60 * 1000)
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(momento)
+}
+
 // Encontra "jsonArray":[...] dentro do HTML e recorta o array completo,
 // contando colchetes (e ignorando os que estão dentro de strings).
-function extrairJsonArray(html) {
+export function extrairJsonArray(html) {
   const posicao = html.indexOf('"jsonArray":')
   if (posicao === -1) return []
   const inicio = html.indexOf('[', posicao)

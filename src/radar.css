@@ -26,6 +26,33 @@
   -webkit-box-orient: vertical;
 }
 
+/* Filtro de período personalizado (duas datas lado a lado) */
+.filtro-datas {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.filtro-datas-ate {
+  font-size: 0.8rem;
+  color: var(--texto-mudo);
+}
+.filtro-datas input[type='date'] { cursor: auto; }
+
+/* Rodapé do feed: botão "Carregar mais" + contagem "x de y" */
+.feed-paginacao {
+  max-width: 800px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 0 6px;
+}
+.feed-paginacao-info {
+  font-size: 0.78rem;
+  color: var(--texto-mudo);
+  font-variant-numeric: tabular-nums;
+}
+
 /* Etiquetas de tema no cartão */
 .temas-chips {
   display: flex;
@@ -44,6 +71,7 @@
   margin: 16px 0 6px;
 }
 .janela-corpo input[type='text'],
+.janela-corpo input[type='password'],
 .janela-corpo textarea {
   width: 100%;
   font-family: var(--corpo);
@@ -57,6 +85,7 @@
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .janela-corpo input[type='text']:focus,
+.janela-corpo input[type='password']:focus,
 .janela-corpo textarea:focus {
   outline: none;
   border-color: var(--azul-luz);
@@ -102,6 +131,64 @@
 }
 .historico strong { color: var(--texto); font-weight: 600; }
 
+/* ---------- Curadoria: arquivar notícias e temas manuais ---------- */
+/* Checkbox "Mostrar arquivadas" na barra de filtros do feed */
+.filtro-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+.filtro-check input {
+  accent-color: var(--azul);
+  cursor: pointer;
+}
+
+/* Notícia arquivada fica esmaecida (visível só com o filtro ligado) */
+.cartao.arquivada {
+  opacity: 0.65;
+  background: var(--panel-2);
+}
+
+/* Tema adicionado manualmente pelo time (azul pastel; "×" remove) */
+.selo-manual {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--azul-suave);
+  color: var(--azul-texto);
+  border-color: #bfdbfe;
+}
+.selo-manual button {
+  border: none;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-size: 0.78rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.selo-manual button:hover { color: var(--vermelho-texto); }
+
+/* Linha "adicionar tema" na janela de detalhes */
+.tema-adicionar {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.tema-adicionar input { flex: 1; }
+
+/* Barra acima do kanban (exportação do Radar) */
+.radar-topo {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
 /* ---------- Aba Usuários (só admin) — portada do LicitaFinnet ---------- */
 .usuarios { display: flex; flex-direction: column; gap: 18px; }
 .usuarios .acoes { justify-content: flex-start; margin-top: 0; }
@@ -142,6 +229,62 @@
 }
 .atividade-uso-dia { max-width: 520px; }
 
+/* ---------- Toasts (avisos no canto que somem sozinhos) ---------- */
+.toast-area {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(360px, calc(100vw - 32px));
+}
+.toast {
+  background: var(--panel);
+  border: 1px solid var(--linha);
+  border-left: 4px solid var(--azul);
+  border-radius: var(--raio-sm);
+  box-shadow: var(--sombra-md);
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: var(--texto);
+  cursor: pointer;
+  animation: toast-entra 0.18s ease;
+}
+.toast-ok { border-left-color: var(--verde); }
+.toast-erro {
+  border-left-color: var(--vermelho);
+  background: var(--vermelho-fundo);
+  color: var(--vermelho-texto);
+}
+@keyframes toast-entra {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Modal de confirmação (substitui confirm()/prompt()) ---------- */
+.confirmar-caixa { max-width: 440px; }
+.confirmar-texto { font-size: 0.9rem; line-height: 1.55; color: var(--texto-suave); }
+.confirmar-caixa .janela-rodape { justify-content: flex-end; margin-top: 18px; }
+
+/* Aviso de erro com botão "Tentar de novo" ao lado */
+.banner-com-acao,
+.erro-recarregar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.erro-recarregar {
+  font-size: 0.82rem;
+  color: var(--vermelho-texto);
+  background: var(--vermelho-fundo);
+  border: 1px solid var(--vermelho-borda);
+  border-radius: var(--raio-sm);
+  padding: 8px 12px;
+}
+
 /* ---------- Ajustes de celular (complementam o finnet-ux.css) ---------- */
 @media (max-width: 720px) {
   /* a área do usuário cabe na MESMA linha da logo (sem linha extra) */
@@ -155,6 +298,7 @@
   .formulario select,
   .formulario textarea,
   .janela-corpo input[type='text'],
+  .janela-corpo input[type='password'],
   .janela-corpo textarea {
     font-size: 16px;
   }
@@ -166,4 +310,72 @@
 @media (max-width: 480px) {
   /* telas bem estreitas: só a logo, sem o subtítulo */
   .marca-sub { display: none; }
+}
+
+/* ============================================================
+   Novidades, prioridade e Informes (ajustes de 24/08/2026)
+   ============================================================ */
+
+/* Tile "Novidades" do cockpit virou botão: clique = filtrar os últimos 7 dias */
+.tile-botao {
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.tile-botao:hover {
+  border-color: var(--azul);
+}
+.tile-ativo {
+  border-color: var(--azul);
+  background: var(--azul-suave);
+  box-shadow: inset 0 0 0 1px var(--azul);
+}
+
+/* Cabeçalho de grupo quando o feed está ordenado por prioridade
+   (01 · Normativos, 02 · Comunicados, 03 · Notícias e demais) */
+.feed-grupo {
+  margin: 16px 0 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--linha);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+.feed-lista .feed-grupo:first-child {
+  margin-top: 0;
+}
+
+/* Resumo em tópicos (Informes do Open Finance): "Descrição:" + lista */
+.cartao-descricao {
+  margin: 0 0 6px;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: var(--texto-suave);
+}
+.cartao-descricao-rotulo {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 600;
+  color: var(--texto);
+}
+.cartao-descricao ul {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Variações dentro da janela de detalhes (fonte maior, sem corte) */
+.descricao-completa {
+  font-size: 0.88rem;
+}
+.resumo-completo {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
 }

@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest run",
     "deploy": "vite build && gh-pages -d dist",
     "coletar": "node coletor/coletar.js",
     "coletar:teste": "node coletor/coletar.js --teste"
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
     "gh-pages": "^6.3.0",
-    "vite": "^6.0.0"
+    "vite": "^6.0.0",
+    "vitest": "^4.1.10"
   }
 }

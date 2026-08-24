@@ -25,6 +25,9 @@ Sistema que mantém o time de **Regulação, Governança e Compliance** atualiza
 O passo a passo completo (criar o Supabase, rodar o banco, subir o robô)
 está em **[docs/COMO-CONFIGURAR.md](docs/COMO-CONFIGURAR.md)**.
 
+> 📘 **Documentação técnica completa:** [docs/documentacao-tecnica.html](docs/documentacao-tecnica.html)
+> 🚚 **Migração para a infra da Finnet:** [docs/MIGRACAO-INFRA-FINNET.md](docs/MIGRACAO-INFRA-FINNET.md)
+
 Atalhos do dia a dia:
 
 | Comando | O que faz |
