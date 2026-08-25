@@ -126,3 +126,43 @@ Perfil regulatório da empresa (IP autorizada modalidade ITP desde 2023; homolog
 | Cobrança/boleto | boleto, cobrança, CIP, Núclea, DDA |
 | LGPD | LGPD, dados pessoais, ANPD |
 | Cibersegurança | segurança cibernética, incidente, Res. BCB 85 |
+
+---
+
+## Canais fechados do Banco Central (registro manual — aba 📮 Comunicações)
+
+Estes canais **exigem login da instituição** no site do BC — não têm API pública,
+então o robô NÃO consegue coletá-los. O que chega por eles deve ser registrado
+à mão na aba **📮 Comunicações**, que classifica o evento, cobra prazo,
+sugere plano de ação e destaca o que está sem resposta:
+
+| Canal | O que chega por ele |
+| --- | --- |
+| **BC Correio** | comunicações oficiais da supervisão, demandas, notificações |
+| **Protocolo Digital** | protocolos de documentos e solicitações formais |
+| **UNICAD** | atualizações e exigências cadastrais |
+| **Siscom/Siscon** | comunicações operacionais (conforme nomenclatura vigente) |
+| **CRD** | demandas de registro/dados |
+| **Cartas e ofícios** | correspondências físicas/digitais do BC |
+| **Governança Open Finance** | comunicados das estruturas, atas e decisões dos GTs |
+
+Tipos de evento usados na classificação: Informação · Solicitação · Exigência ·
+Fiscalização · Supervisão · Prazo regulatório · Processo administrativo ·
+Consulta pública.
+
+## Consultas públicas do BCB (automático, parcial)
+
+Não há API pública dedicada (a página é um app Angular; os endpoints
+`/api/servico/sitebcb/consultaspublicas` e variações retornam 400 — testado em
+24/08/2026). O coletor cobre o caminho que existe: quando um **Edital de
+Consulta Pública / Audiência Pública** sai no feed Atom de atos e comunicados
+do BCB, ele entra no feed com a categoria **Consulta Pública** (prioridade 02).
+
+## Repositório de Informes do Open Finance (automático)
+
+- Página do wiki: `https://openfinancebrasil.atlassian.net/wiki/rest/api/content/17367115?expand=body.view` (Confluence REST, sem login)
+- Tabela com 3 colunas: **Link** (eepurl.com → arquivo do boletim no Mailchimp),
+  **Descrição** (tópicos em `<li>`) e **Data de envio** (`<time datetime>`)
+- O título oficial ("[Open Finance] Informa #938") vem do `<title>` da página
+  do boletim (seguindo o link eepurl)
+- O coletor pega os 8 mais recentes por rodada; a URL única evita duplicar

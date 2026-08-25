@@ -14,6 +14,7 @@ import { useAvisos } from './componentes/Avisos.jsx'
 import TelaLogin from './TelaLogin.jsx'
 import Feed from './abas/Feed.jsx'
 import Radar from './abas/Radar.jsx'
+import Comunicacoes from './abas/Comunicacoes.jsx'
 import Usuarios from './abas/Usuarios.jsx'
 import Atividade from './abas/Atividade.jsx'
 
@@ -24,6 +25,7 @@ const DEMO = !configurado
 const ABAS = [
   ['feed', '📰 Feed de novidades'],
   ['radar', '🎯 Radar de mudanças'],
+  ['comunicacoes', '📮 Comunicações'],
 ]
 
 // Deep-link: se o endereço veio com ?aba=…&fonte=…&card=…, a tela abre
@@ -291,6 +293,7 @@ export default function App() {
           aoAbrirCard={setCardAberto}
         />
       )}
+      {abaAtiva === 'comunicacoes' && <Comunicacoes usuario={email} demo={DEMO} />}
       {abaAtiva === 'usuarios' && perfil?.is_admin && <Usuarios usuarioEmail={email} demo={DEMO} />}
       {abaAtiva === 'atividade' && perfil?.is_admin && <Atividade demo={DEMO} />}
     </div>

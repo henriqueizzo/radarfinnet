@@ -3,7 +3,7 @@
 
 export const FONTES = ['Banco Central', 'Coaf', 'Febraban', 'Open Finance']
 
-export const CATEGORIAS = ['Normativo', 'Comunicado', 'Notícia', 'Wiki', 'Release']
+export const CATEGORIAS = ['Normativo', 'Comunicado', 'Consulta Pública', 'Notícia', 'Wiki', 'Release']
 
 // Mesmo catálogo de etiquetas que o coletor aplica (coletor/temas.js)
 export const TEMAS = [
@@ -25,16 +25,17 @@ export const PERIODOS = [
 ]
 
 // Ordem de importância das categorias quando o feed é ordenado
-// "por prioridade": 01 Normativos → 02 Comunicados → 03 o resto.
+// "por prioridade": 01 Normativos → 02 Comunicados/Consultas → 03 o resto.
+// (Espelha a coluna prioridade calculada pelo banco — supabase/schema.sql)
 export function prioridadeDaCategoria(categoria) {
   if (categoria === 'Normativo') return 1
-  if (categoria === 'Comunicado') return 2
+  if (categoria === 'Comunicado' || categoria === 'Consulta Pública') return 2
   return 3
 }
 
 export const GRUPOS_PRIORIDADE = {
   1: '01 · Normativos',
-  2: '02 · Comunicados',
+  2: '02 · Comunicados e Consultas Públicas',
   3: '03 · Notícias e demais',
 }
 

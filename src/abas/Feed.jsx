@@ -26,10 +26,10 @@ import {
 import { useAvisos } from '../componentes/Avisos.jsx'
 import ResumoNoticia from '../componentes/ResumoNoticia.jsx'
 
-// Faixa lateral: âmbar = normativo (pede atenção), azul = comunicado/release
+// Faixa lateral: âmbar = normativo (pede atenção), azul = comunicado/consulta/release
 function faixaDaNoticia(noticia) {
   if (noticia.categoria === 'Normativo') return 'faixa-amarelo'
-  if (noticia.categoria === 'Comunicado' || noticia.categoria === 'Release') return 'faixa-azul'
+  if (['Comunicado', 'Consulta Pública', 'Release'].includes(noticia.categoria)) return 'faixa-azul'
   return ''
 }
 

@@ -26,10 +26,15 @@ export async function coletarBCB() {
       let url = linkDoAtom(entrada)
       if (url.startsWith('/')) url = 'https://www.bcb.gov.br' + url
       if (!url) continue
+      const titulo = textoDoAtom(entrada.title).replace(/^BC\s*-\s*/, '')
       itens.push({
         fonte: 'Banco Central',
-        categoria: grupo.categoria,
-        titulo: textoDoAtom(entrada.title).replace(/^BC\s*-\s*/, ''),
+        // Editais de consulta/audiência pública têm prazo para contribuir —
+        // ganham categoria própria (prioridade 2, junto dos Comunicados)
+        categoria: /edital de consulta|consulta p[úu]blica|audi[êe]ncia p[úu]blica/i.test(titulo)
+          ? 'Consulta Pública'
+          : grupo.categoria,
+        titulo,
         resumo: resumir(textoDoAtom(entrada.summary ?? entrada.content)),
         url,
         data_publicacao: entrada.updated ?? entrada.published ?? null,

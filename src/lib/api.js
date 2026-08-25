@@ -8,7 +8,7 @@
 // Assim as telas têm UM caminho só, sem "if (demo)" espalhado.
 import { supabase } from './supabaseClient.js'
 import { registrarAtividade } from './atividade.js'
-import { NOTICIAS_DEMO, RADAR_DEMO } from './demo.js'
+import { NOTICIAS_DEMO, RADAR_DEMO, COMUNICACOES_DEMO } from './demo.js'
 import { semAcentos } from './util.js'
 import { prioridadeDaCategoria } from './catalogos.js'
 
@@ -414,6 +414,86 @@ export async function buscarHistorico({ demo, radarId }) {
     .order('quando', { ascending: false })
   if (error) return { ok: false, erro: error.message }
   return { ok: true, eventos: data ?? [] }
+}
+
+/* ---------- Aba Comunicações: canais fechados do BC ---------- */
+// O que chega por BC Correio, UNICAD, Protocolo Digital etc. é registrado
+// À MÃO pelo time (esses sistemas exigem login da instituição). A tabela
+// comunicacoes nasce na migração 2026-08-24 — sem ela, explicamos o que aplicar.
+
+const AJUDA_COMUNICACOES =
+  'O banco ainda não tem a tabela de comunicações. Aplique o arquivo ' +
+  'supabase/migracao-2026-08-24.sql no SQL Editor do Supabase e tente de novo.'
+
+function faltaTabelaComunicacoes(error) {
+  return (
+    error?.code === '42P01' || // Postgres: tabela inexistente
+    error?.code === 'PGRST205' || // PostgREST: tabela fora do schema cache
+    /comunicacoes/i.test(error?.message ?? '')
+  )
+}
+
+export async function listarComunicacoes({ demo }) {
+  if (demo) return { ok: true, comunicacoes: COMUNICACOES_DEMO }
+  const { data, error } = await supabase
+    .from('comunicacoes')
+    .select('*')
+    .order('criado_em', { ascending: false })
+  if (error) {
+    if (faltaTabelaComunicacoes(error)) return { ok: false, erro: AJUDA_COMUNICACOES }
+    return { ok: false, erro: error.message }
+  }
+  return { ok: true, comunicacoes: data ?? [] }
+}
+
+// id vazio = registrar nova; id preenchido = atualizar a existente
+export async function salvarComunicacao({ demo, comunicacao, usuario }) {
+  const { id, ...campos } = comunicacao
+  if (demo) {
+    const agora = new Date().toISOString()
+    return {
+      ok: true,
+      salvaDemo: {
+        ...campos,
+        id: id || `demo-c-${Date.now()}`,
+        criado_por: usuario,
+        criado_em: agora,
+        atualizado_em: agora,
+      },
+    }
+  }
+  const consulta = id
+    ? supabase
+        .from('comunicacoes')
+        .update({ ...campos, atualizado_em: new Date().toISOString() })
+        .eq('id', id)
+    : supabase.from('comunicacoes').insert({ ...campos, criado_por: await emailGarantido(usuario) })
+  const { data, error } = await consulta.select('id')
+  if (error) {
+    if (faltaTabelaComunicacoes(error)) return { ok: false, erro: AJUDA_COMUNICACOES }
+    return { ok: false, erro: error.message }
+  }
+  if (!data || data.length === 0) {
+    return { ok: false, erro: 'O banco não deixou salvar (nenhuma linha foi alterada).' }
+  }
+  registrarAtividade({
+    usuario,
+    tipo: id ? 'editar_comunicacao' : 'registrar_comunicacao',
+    detalhe: `${campos.canal} — ${campos.assunto}`,
+  })
+  return { ok: true }
+}
+
+export async function removerComunicacao({ demo, comunicacao, usuario }) {
+  if (demo) return { ok: true }
+  const { error } = await supabase.from('comunicacoes').delete().eq('id', comunicacao.id)
+  if (error) return { ok: false, erro: error.message }
+  registrarAtividade({
+    usuario,
+    tipo: 'remover_comunicacao',
+    detalhe: `${comunicacao.canal} — ${comunicacao.assunto}`,
+  })
+  return { ok: true }
 }
 
 /* ---------- Aba Usuários (só administradores) ---------- */

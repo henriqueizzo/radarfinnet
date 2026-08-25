@@ -20,11 +20,12 @@ create table if not exists noticias (
   descartada      boolean not null default false, -- true = time descartou a notícia do feed
   temas_manuais   text[],                       -- temas adicionados à mão pelo time
   -- prioridade CALCULADA pelo banco a partir da categoria (o feed ordena por ela):
-  -- 1 = Normativo · 2 = Comunicado · 3 = todo o resto
+  -- 1 = Normativo · 2 = Comunicado/Consulta Pública · 3 = todo o resto
   prioridade      smallint generated always as (
                     case categoria
-                      when 'Normativo'  then 1
-                      when 'Comunicado' then 2
+                      when 'Normativo'        then 1
+                      when 'Comunicado'       then 2
+                      when 'Consulta Pública' then 2
                       else 3
                     end
                   ) stored,
@@ -216,3 +217,46 @@ create policy "robo grava coletas"      on coletas_execucoes for insert to servi
 
 drop policy if exists "robo atualiza coletas" on coletas_execucoes;
 create policy "robo atualiza coletas"   on coletas_execucoes for update to service_role using (true) with check (true);
+
+-- ---------- Tabela 7: comunicações dos canais fechados do BC ----------
+-- O que chega por BC Correio, UNICAD, Protocolo Digital, Siscom/Siscon,
+-- CRD etc. é registrado À MÃO pelo time (esses sistemas exigem login da
+-- instituição). O sistema classifica, cobra prazo e sugere plano de ação.
+
+create table if not exists comunicacoes (
+  id                uuid primary key default gen_random_uuid(),
+  canal             text not null,                       -- 'BC Correio', 'UNICAD', 'Protocolo Digital'...
+  tipo              text not null,                       -- 'Informação', 'Exigência', 'Fiscalização'...
+  assunto           text not null,
+  descricao         text default '',
+  recebida_em       date,                                -- quando a comunicação chegou
+  prazo             date,                                -- prazo de resposta (se houver)
+  area_responsavel  text default '',
+  documentos        text default '',                     -- documentos requeridos
+  impacto           text default '',                     -- impacto potencial para a Finnet
+  reporte_diretoria boolean not null default false,      -- precisa reportar à Diretoria/Conselho?
+  plano_acao        text default '',                     -- plano de ação (sugerido pelo sistema, editável)
+  status_resposta   text not null default 'Sem resposta'
+                    check (status_resposta in ('Sem resposta', 'Em andamento', 'Respondida')),
+  criado_por        text default '',                     -- e-mail de quem registrou
+  criado_em         timestamptz not null default now(),
+  atualizado_em     timestamptz not null default now()
+);
+
+create index if not exists idx_comunicacoes_prazo  on comunicacoes (prazo);
+create index if not exists idx_comunicacoes_status on comunicacoes (status_resposta);
+
+alter table comunicacoes enable row level security;
+
+-- Toda a equipe logada e ativa registra, consulta, atualiza e remove
+drop policy if exists "equipe le comunicacoes" on comunicacoes;
+create policy "equipe le comunicacoes"       on comunicacoes for select to authenticated using (usuario_ativo());
+
+drop policy if exists "equipe registra comunicacoes" on comunicacoes;
+create policy "equipe registra comunicacoes" on comunicacoes for insert to authenticated with check (usuario_ativo());
+
+drop policy if exists "equipe atualiza comunicacoes" on comunicacoes;
+create policy "equipe atualiza comunicacoes" on comunicacoes for update to authenticated using (usuario_ativo()) with check (usuario_ativo());
+
+drop policy if exists "equipe remove comunicacoes" on comunicacoes;
+create policy "equipe remove comunicacoes"   on comunicacoes for delete to authenticated using (usuario_ativo());

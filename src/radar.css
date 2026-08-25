@@ -379,3 +379,55 @@
   font-size: 0.88rem;
   line-height: 1.5;
 }
+
+/* ============================================================
+   Aba Comunicações (canais fechados do BC) — 24/08/2026
+   ============================================================ */
+
+/* Duas colunas lado a lado dentro do formulário */
+.formulario-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 640px) {
+  .formulario-linha { grid-template-columns: 1fr; }
+}
+
+/* Linha de detalhes do card: Área · Documentos · Impacto */
+.comunicacao-detalhes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 6px;
+  font-size: 0.74rem;
+  color: var(--texto-suave);
+}
+.comunicacao-detalhes b {
+  color: var(--texto);
+  font-weight: 600;
+}
+
+/* Plano de ação recolhível dentro do card */
+.comunicacao-plano {
+  margin: 0 0 6px;
+  font-size: 0.74rem;
+}
+.comunicacao-plano summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--azul-texto);
+  user-select: none;
+}
+.comunicacao-plano pre {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--linha);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--texto-suave);
+}

@@ -145,6 +145,73 @@ export const NOTICIAS_DEMO = [
 
 const noticia = (id) => NOTICIAS_DEMO.find((n) => n.id === id)
 
+// "AAAA-MM-DD" deslocado N dias a partir de hoje (para prazos de exemplo)
+const diasDeHoje = (dias) => {
+  const d = new Date(AGORA + dias * 24 * 60 * 60 * 1000)
+  const dois = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${dois(d.getMonth() + 1)}-${dois(d.getDate())}`
+}
+
+export const COMUNICACOES_DEMO = [
+  {
+    id: 'demo-c1',
+    canal: 'BC Correio',
+    tipo: 'Exigência',
+    assunto: 'Adequação dos controles de PLD/FT — plano de ação requerido',
+    descricao:
+      'O Departamento de Supervisão solicita plano de adequação dos controles de prevenção à lavagem de dinheiro, com cronograma e responsáveis.',
+    recebida_em: diasDeHoje(-6),
+    prazo: diasDeHoje(4),
+    area_responsavel: 'Compliance',
+    documentos: 'Política de PLD/FT vigente, relatório da última auditoria interna',
+    impacto: 'Alto — envolve controles obrigatórios da autorização como IP',
+    reporte_diretoria: true,
+    plano_acao:
+      '1. Registrar ciência e dar conhecimento imediato à Diretoria\n2. Designar formalmente o responsável pelo atendimento\n3. Montar o plano de adequação com etapas e datas internas\n4. Responder dentro do prazo pelo canal de origem, com evidências',
+    status_resposta: 'Sem resposta',
+    criado_por: 'henrique@finnet.com.br',
+    criado_em: horasAtras(140),
+    atualizado_em: horasAtras(140),
+  },
+  {
+    id: 'demo-c2',
+    canal: 'Protocolo Digital',
+    tipo: 'Solicitação',
+    assunto: 'Esclarecimentos sobre volumetria de transações Pix',
+    descricao: 'Pedido de detalhamento da volumetria mensal de iniciações Pix dos últimos 12 meses.',
+    recebida_em: diasDeHoje(-12),
+    prazo: diasDeHoje(9),
+    area_responsavel: 'Produtos / Dados',
+    documentos: 'Relatórios de volumetria (12 meses)',
+    impacto: 'Médio — demanda levantamento de dados históricos',
+    reporte_diretoria: false,
+    plano_acao:
+      '1. Confirmar o recebimento pelo mesmo canal oficial\n2. Levantar as informações solicitadas com a área responsável\n3. Protocolar a resposta e guardar o comprovante',
+    status_resposta: 'Em andamento',
+    criado_por: 'fabiane@finnet.com.br',
+    criado_em: horasAtras(280),
+    atualizado_em: horasAtras(30),
+  },
+  {
+    id: 'demo-c3',
+    canal: 'UNICAD',
+    tipo: 'Informação',
+    assunto: 'Atualização cadastral anual — janela aberta',
+    descricao: 'Comunicado sobre a abertura da janela de atualização das informações cadastrais no UNICAD.',
+    recebida_em: diasDeHoje(-20),
+    prazo: '',
+    area_responsavel: 'Backoffice',
+    documentos: '',
+    impacto: 'Baixo — rotina anual',
+    reporte_diretoria: false,
+    plano_acao: '1. Conferir os dados cadastrais vigentes\n2. Atualizar o que mudou dentro da janela',
+    status_resposta: 'Respondida',
+    criado_por: 'henrique@finnet.com.br',
+    criado_em: horasAtras(480),
+    atualizado_em: horasAtras(200),
+  },
+]
+
 export const PERFIS_DEMO = [
   { id: 'demo-u1', nome: 'Henrique Izzo', email: 'henrique@finnet.com.br', is_admin: true, ativo: true, criado_em: horasAtras(720) },
   { id: 'demo-u2', nome: 'Fabiane Ceccato', email: 'fabiane@finnet.com.br', is_admin: false, ativo: true, criado_em: horasAtras(700) },

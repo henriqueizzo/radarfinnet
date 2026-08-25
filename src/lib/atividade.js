@@ -12,6 +12,9 @@ export const TIPOS_ATIVIDADE = {
   arquivar_noticia: 'Notícia arquivada',
   restaurar_noticia: 'Notícia restaurada',
   editar_temas: 'Edição de temas',
+  registrar_comunicacao: 'Comunicação registrada',
+  editar_comunicacao: 'Comunicação editada',
+  remover_comunicacao: 'Comunicação removida',
 }
 
 export const rotuloTipo = (tipo) => TIPOS_ATIVIDADE[tipo] || tipo
