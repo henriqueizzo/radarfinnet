@@ -431,3 +431,65 @@
   white-space: pre-wrap;
   color: var(--texto-suave);
 }
+
+/* ============================================================
+   Aba Split & Reforma (12/11/2026)
+   ============================================================ */
+
+/* Publicações | Cobertura por banco */
+.alternador {
+  display: inline-flex;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-sm);
+  overflow: hidden;
+}
+.alternador button {
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 7px 12px;
+  border: none;
+  background: var(--panel);
+  color: var(--texto-suave);
+  cursor: pointer;
+}
+.alternador button + button { border-left: 1px solid var(--linha); }
+.alternador button.ativo { background: var(--azul); color: #fff; }
+.alternador button:not(.ativo):hover { background: var(--azul-suave); }
+
+/* Select compacto dentro do cartão (troca de status) */
+.filtro-select.filtro-select-mini { padding: 3px 8px; font-size: 0.7rem; }
+
+/* Nome do banco clicável na tabela de cobertura */
+.link-botao {
+  font: inherit;
+  font-weight: 600;
+  color: var(--azul);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+a.cartao-titulo { color: inherit; text-decoration: none; }
+a.cartao-titulo:hover { text-decoration: underline; }
+.tributario-acao { white-space: pre-line; }
+.tributario-janela-titulo { margin: 0 0 6px; font-size: 0.9rem; }
+.tributario-cartao .acoes { justify-content: flex-start; align-items: center; }
+
+/* Aba Relatório (Split & Reforma) */
+.relatorio-titulo { margin: 0 0 2px; font-size: 1.15rem; color: var(--texto); }
+.relatorio-resumo { margin: 0; padding-left: 18px; font-size: 0.85rem; color: var(--texto-suave); line-height: 1.6; }
+.relatorio-texto { font-size: 0.85rem; color: var(--texto-suave); margin: 0; }
+.relatorio-sem { margin-top: 10px; }
+.relatorio-acoes { display: flex; flex-direction: column; gap: 10px; }
+.relatorio-acao { border-top: 1px solid var(--linha-suave); padding-top: 8px; font-size: 0.82rem; }
+.relatorio-acao pre { white-space: pre-wrap; font-family: var(--corpo); font-size: 0.78rem; margin: 4px 0 0; color: var(--texto-suave); }
+.relatorio .tabela a { color: var(--azul); }
+
+@media print {
+  .relatorio .dash-controles { display: none !important; }
+  .relatorio .dash-cartao, .relatorio .tile { break-inside: avoid; }
+  .relatorio .tabela a { color: inherit; text-decoration: none; }
+}

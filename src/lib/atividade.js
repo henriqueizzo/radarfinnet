@@ -15,6 +15,8 @@ export const TIPOS_ATIVIDADE = {
   registrar_comunicacao: 'Comunicação registrada',
   editar_comunicacao: 'Comunicação editada',
   remover_comunicacao: 'Comunicação removida',
+  tributario_status: 'Split & Reforma: status',
+  tributario_editar: 'Split & Reforma: ação',
 }
 
 export const rotuloTipo = (tipo) => TIPOS_ATIVIDADE[tipo] || tipo

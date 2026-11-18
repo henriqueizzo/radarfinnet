@@ -281,3 +281,37 @@ export const RADAR_DEMO = [
     noticia: noticia('demo-n10'),
   },
 ]
+
+// Vertical Split Payment & Reforma Tributária (aba "Split & Reforma")
+function publicacaoDemo(id, banco, titulo, origem, assuntos, sinais, prioridade, status, horas, extra = {}) {
+  return {
+    id,
+    banco,
+    titulo,
+    url: `https://news.google.com/demo/${id}`,
+    veiculo: origem === 'Site do banco' ? banco : 'Valor Econômico',
+    origem,
+    assuntos,
+    sinais,
+    prioridade,
+    status,
+    responsavel: '',
+    acao: '',
+    data_publicacao: horasAtras(horas),
+    criado_em: horasAtras(horas),
+    atualizado_em: horasAtras(horas),
+    ...extra,
+  }
+}
+
+export const TRIBUTARIO_DEMO = [
+  publicacaoDemo('demo-t1', 'Itaú Unibanco', 'Itaú divulga especificação técnica do split payment para clientes de cobrança', 'Site do banco', ['Split Payment'], ['Layout/Integração'], 'Alta', 'Novo', 5),
+  publicacaoDemo('demo-t2', 'Mercado (split payment)', "'Split payment': 98% das operações entre empresas devem estar cobertas a partir de outubro de 2027", 'Imprensa', ['Split Payment'], ['Prazo/Cronograma'], 'Alta', 'Novo', 30),
+  publicacaoDemo('demo-t3', 'Santander', 'Split payment: entenda seu papel na reforma tributária', 'Site do banco', ['Split Payment', 'Reforma Tributária'], ['Orientação a clientes'], 'Alta', 'Em análise', 190, { responsavel: 'Henrique' }),
+  publicacaoDemo('demo-t4', 'Banco do Brasil', 'Reforma Tributária para o segmento Corporate', 'Site do banco', ['Reforma Tributária'], [], 'Média', 'Novo', 60),
+  publicacaoDemo('demo-t5', 'Sicredi', 'Reforma Tributária reforça importância da organização financeira nas empresas', 'Site do banco', ['Reforma Tributária'], [], 'Média', 'Sem impacto', 500),
+  publicacaoDemo('demo-t6', 'Santander', 'Santander reúne empresários no Rio para discutir Reforma Tributária', 'Imprensa', ['Reforma Tributária'], [], 'Baixa', 'Novo', 80),
+  publicacaoDemo('demo-t8', 'Itaú Unibanco', 'Layout de Arquivos', 'Site do banco', ['Layout/Documentação'], ['Layout/Integração'], 'Média', 'Histórico', 2000),
+  publicacaoDemo('demo-t9', 'Febraban (setor bancário)', 'Padrão FEBRABAN 240 Posições V6.0', 'Site do banco', ['Layout/Documentação'], ['Layout/Integração'], 'Média', 'Novo', 40),
+  publicacaoDemo('demo-t7', 'Banco Safra', 'Split payment pode pressionar caixa do varejo a partir de 2027', 'Site do banco', ['Split Payment'], ['Prazo/Cronograma'], 'Alta', 'Histórico', 1400),
+]

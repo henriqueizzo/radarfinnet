@@ -14,13 +14,14 @@
 // Testar sem banco:  npm run coletar:teste
 // Automático:        GitHub Actions (.github/workflows/coletor.yml)
 // ============================================================
-import { createClient } from '@supabase/supabase-js'
 import { coletarBCB } from './fontes/bcb.js'
 import { coletarCoaf } from './fontes/coaf.js'
 import { coletarFebraban } from './fontes/febraban.js'
 import { coletarOpenFinance } from './fontes/openfinance.js'
 import { coletarDOU } from './fontes/dou.js'
 import { detectarTemas } from './temas.js'
+import { enviarAviso } from './aviso.js'
+import { conectarSupabase } from './supabase.js'
 
 const MODO_TESTE = process.argv.includes('--teste')
 const TAMANHO_DO_LOTE = 100
@@ -152,111 +153,21 @@ async function registrarExecucoes(supabase, execucoes) {
   }
 }
 
-// Resumo por e-mail (Resend) e/ou Teams quando normativos novos entram no
-// Radar. Sem as variáveis de ambiente, só avisa e segue em frente.
+// Resumo por e-mail/Teams quando normativos novos entram no Radar
+// (o envio em si fica em coletor/aviso.js, compartilhado com a vertical
+// Split Payment & Reforma Tributária).
 async function enviarDigest(novos, paraRadar) {
   if (paraRadar.length === 0) return
-  const chaveResend = process.env.RESEND_API_KEY
-  const destinatarios = process.env.DIGEST_PARA
-  const webhookTeams = process.env.TEAMS_WEBHOOK_URL
-  if (!(chaveResend && destinatarios) && !webhookTeams) {
-    console.log('📭 Digest desativado (defina RESEND_API_KEY + DIGEST_PARA e/ou TEAMS_WEBHOOK_URL para receber alertas)')
-    return
-  }
-
-  const assunto = `Radar Regulatório: ${paraRadar.length} normativo(s) novo(s) no Radar`
-  const escapar = (texto) =>
-    String(texto).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-
-  if (chaveResend && destinatarios) {
-    try {
-      const html = [
-        `<h2>🎯 ${paraRadar.length} normativo(s) novo(s) entraram no Radar</h2>`,
-        '<ul>',
-        ...paraRadar.map(
-          (n) => `<li><a href="${escapar(n.url)}">${escapar(n.titulo)}</a> — temas: ${escapar((n.temas ?? []).join(', ')) || '—'}</li>`,
-        ),
-        '</ul>',
-        `<p>No total, esta rodada gravou ${novos.length} novidade(s) no feed.</p>`,
-      ].join('\n')
-      const resposta = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${chaveResend}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: 'Radar Regulatório <onboarding@resend.dev>',
-          to: destinatarios.split(',').map((e) => e.trim()),
-          subject: assunto,
-          html,
-        }),
-        signal: AbortSignal.timeout(15000),
-      })
-      if (!resposta.ok) throw new Error(`HTTP ${resposta.status}: ${await resposta.text()}`)
-      console.log(`📧 Digest enviado por e-mail para ${destinatarios}`)
-    } catch (erro) {
-      console.warn(`  aviso: digest por e-mail falhou (${erro.message}) — a coleta segue normal`)
-    }
-  }
-
-  if (webhookTeams) {
-    try {
-      const cartao = {
-        type: 'message',
-        attachments: [
-          {
-            contentType: 'application/vnd.microsoft.card.adaptive',
-            content: {
-              $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
-              type: 'AdaptiveCard',
-              version: '1.4',
-              body: [
-                { type: 'TextBlock', size: 'Medium', weight: 'Bolder', text: `🎯 ${assunto}`, wrap: true },
-                ...paraRadar.map((n) => ({
-                  type: 'TextBlock',
-                  text: `• [${n.titulo}](${n.url})`,
-                  wrap: true,
-                })),
-                { type: 'TextBlock', isSubtle: true, text: `No total, esta rodada gravou ${novos.length} novidade(s) no feed.`, wrap: true },
-              ],
-            },
-          },
-        ],
-      }
-      const resposta = await fetch(webhookTeams, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cartao),
-        signal: AbortSignal.timeout(15000),
-      })
-      if (!resposta.ok) throw new Error(`HTTP ${resposta.status}: ${await resposta.text()}`)
-      console.log('💬 Digest enviado ao Teams')
-    } catch (erro) {
-      console.warn(`  aviso: digest no Teams falhou (${erro.message}) — a coleta segue normal`)
-    }
-  }
-}
-
-async function conectarSupabase() {
-  // No GitHub Actions os valores vêm dos Secrets; no seu PC,
-  // do arquivo coletor/config.local.js (que o git ignora).
-  let url = process.env.SUPABASE_URL
-  let chave = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !chave) {
-    try {
-      const local = await import('./config.local.js')
-      url = url || local.SUPABASE_URL
-      chave = chave || local.SUPABASE_SERVICE_ROLE_KEY
-    } catch {
-      /* arquivo local não existe — tudo bem, o erro abaixo explica */
-    }
-  }
-  if (!url || !chave) {
-    throw new Error(
-      'faltam as credenciais do Supabase. Crie o arquivo coletor/config.local.js ' +
-        '(copie do config.local.exemplo.js) ou defina as variáveis SUPABASE_URL e ' +
-        'SUPABASE_SERVICE_ROLE_KEY. Para testar sem banco: npm run coletar:teste',
-    )
-  }
-  return createClient(url, chave)
+  await enviarAviso({
+    assunto: `Radar Regulatório: ${paraRadar.length} normativo(s) novo(s) no Radar`,
+    cabecalho: `🎯 ${paraRadar.length} normativo(s) novo(s) entraram no Radar`,
+    itens: paraRadar.map((n) => ({
+      titulo: n.titulo,
+      url: n.url,
+      detalhe: `temas: ${(n.temas ?? []).join(', ') || '—'}`,
+    })),
+    rodape: `No total, esta rodada gravou ${novos.length} novidade(s) no feed.`,
+  })
 }
 
 principal().catch((erro) => {

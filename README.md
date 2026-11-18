@@ -6,6 +6,11 @@ Sistema que mantém o time de **Regulação, Governança e Compliance** atualiza
   Febraban, Open Finance Brasil e DOU, coletados automaticamente e
   etiquetados com os temas que importam para a Finnet (Pix, Open Finance,
   PLD/FT, duplicata escritural…).
+- **🧾 Split & Reforma** — todo dia às 7h, busca o que os 57 bancos integrados
+  à Finnet publicam sobre split payment e reforma tributária (nos sites deles
+  e na imprensa) e faz o levantamento das documentações de layout (CNAB,
+  manuais técnicos, padrões Febraban) publicadas nos sites dos bancos;
+  classifica por prioridade e o time trata cada publicação.
 - **🎯 Radar de mudanças** — quadro kanban onde cada mudança regulatória
   avança pelos status **Encontrado → Avaliando → Desenvolvimento → Entregue**,
   com responsável, observações e histórico de quem moveu.
@@ -34,6 +39,8 @@ Atalhos do dia a dia:
 |---|---|
 | `npm run dev` | abre o site no seu PC |
 | `npm run coletar:teste` | testa as 5 fontes SEM gravar no banco |
+| `npm run coletar:tributario:teste` | testa a busca Split Payment & Reforma Tributária SEM gravar |
+| `npm run coletar:tributario` | coleta Split Payment & Reforma Tributária e grava no banco |
 | `npm run coletar` | coleta e grava no banco (precisa de credenciais) |
 | `npm run deploy` | publica o site no GitHub Pages |
 

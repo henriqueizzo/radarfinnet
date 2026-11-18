@@ -8,7 +8,7 @@
 // Assim as telas têm UM caminho só, sem "if (demo)" espalhado.
 import { supabase } from './supabaseClient.js'
 import { registrarAtividade } from './atividade.js'
-import { NOTICIAS_DEMO, RADAR_DEMO, COMUNICACOES_DEMO } from './demo.js'
+import { NOTICIAS_DEMO, RADAR_DEMO, COMUNICACOES_DEMO, TRIBUTARIO_DEMO } from './demo.js'
 import { semAcentos } from './util.js'
 import { prioridadeDaCategoria } from './catalogos.js'
 
@@ -494,6 +494,61 @@ export async function removerComunicacao({ demo, comunicacao, usuario }) {
     detalhe: `${comunicacao.canal} — ${comunicacao.assunto}`,
   })
   return { ok: true }
+}
+
+/* ---------- Aba Split & Reforma: publicações dos bancos parceiros ---------- */
+// O robô (coletor/coletar-tributario.js) grava; o time só trata
+// (status, responsável, ação). A tabela nasce na migração 2026-11-12.
+
+const AJUDA_TRIBUTARIO =
+  'O banco ainda não tem a tabela da vertical Split Payment & Reforma Tributária. ' +
+  'Aplique o arquivo supabase/migracao-2026-11-12.sql no SQL Editor do Supabase e tente de novo.'
+
+function faltaTabelaTributario(error) {
+  return (
+    error?.code === '42P01' ||
+    error?.code === 'PGRST205' ||
+    /tributario_publicacoes/i.test(error?.message ?? '')
+  )
+}
+
+export const LIMITE_TRIBUTARIO = 3000
+
+export async function listarTributario({ demo }) {
+  if (demo) return { ok: true, publicacoes: TRIBUTARIO_DEMO }
+  const { data, error } = await supabase
+    .from('tributario_publicacoes')
+    .select('*')
+    .order('data_publicacao', { ascending: false, nullsFirst: false })
+    .limit(LIMITE_TRIBUTARIO)
+  if (error) {
+    if (faltaTabelaTributario(error)) return { ok: false, erro: AJUDA_TRIBUTARIO }
+    return { ok: false, erro: error.message }
+  }
+  return { ok: true, publicacoes: data ?? [] }
+}
+
+// campos = { status?, responsavel?, acao? }
+export async function tratarPublicacao({ demo, publicacao, campos, usuario }) {
+  if (demo) return { ok: true, salvaDemo: { ...publicacao, ...campos, atualizado_em: new Date().toISOString() } }
+  const { data, error } = await supabase
+    .from('tributario_publicacoes')
+    .update(campos)
+    .eq('id', publicacao.id)
+    .select('*')
+  if (error) {
+    if (faltaTabelaTributario(error)) return { ok: false, erro: AJUDA_TRIBUTARIO }
+    return { ok: false, erro: error.message }
+  }
+  if (!data || data.length === 0) {
+    return { ok: false, erro: 'O banco não deixou salvar (nenhuma linha foi alterada).' }
+  }
+  registrarAtividade({
+    usuario,
+    tipo: campos.status && campos.status !== publicacao.status ? 'tributario_status' : 'tributario_editar',
+    detalhe: `${publicacao.banco} — ${publicacao.titulo}${campos.status && campos.status !== publicacao.status ? ` → ${campos.status}` : ''}`,
+  })
+  return { ok: true, salva: data[0] }
 }
 
 /* ---------- Aba Usuários (só administradores) ---------- */

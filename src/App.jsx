@@ -15,6 +15,8 @@ import TelaLogin from './TelaLogin.jsx'
 import Feed from './abas/Feed.jsx'
 import Radar from './abas/Radar.jsx'
 import Comunicacoes from './abas/Comunicacoes.jsx'
+import Tributario from './abas/Tributario.jsx'
+import Relatorio from './abas/Relatorio.jsx'
 import Usuarios from './abas/Usuarios.jsx'
 import Atividade from './abas/Atividade.jsx'
 
@@ -26,6 +28,8 @@ const ABAS = [
   ['feed', '📰 Feed de novidades'],
   ['radar', '🎯 Radar de mudanças'],
   ['comunicacoes', '📮 Comunicações'],
+  ['tributario', '🧾 Split & Reforma'],
+  ['relatorio', '📑 Relatório'],
 ]
 
 // Deep-link: se o endereço veio com ?aba=…&fonte=…&card=…, a tela abre
@@ -294,6 +298,8 @@ export default function App() {
         />
       )}
       {abaAtiva === 'comunicacoes' && <Comunicacoes usuario={email} demo={DEMO} />}
+      {abaAtiva === 'tributario' && <Tributario usuario={email} demo={DEMO} />}
+      {abaAtiva === 'relatorio' && <Relatorio usuario={email} demo={DEMO} />}
       {abaAtiva === 'usuarios' && perfil?.is_admin && <Usuarios usuarioEmail={email} demo={DEMO} />}
       {abaAtiva === 'atividade' && perfil?.is_admin && <Atividade demo={DEMO} />}
     </div>

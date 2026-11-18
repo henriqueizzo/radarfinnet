@@ -166,3 +166,36 @@ do BCB, ele entra no feed com a categoria **Consulta Pública** (prioridade 02).
 - O título oficial ("[Open Finance] Informa #938") vem do `<title>` da página
   do boletim (seguindo o link eepurl)
 - O coletor pega os 8 mais recentes por rodada; a URL única evita duplicar
+
+## Split Payment & Reforma Tributária (bancos integrados à Finnet)
+
+Coletor próprio: `coletor/coletar-tributario.js`, todo dia às 07:00 (Brasília)
+pelo workflow `.github/workflows/tributario.yml`. Grava em
+`tributario_publicacoes` (migração `supabase/migracao-2026-11-12.sql`) e
+aparece na aba **🧾 Split & Reforma**.
+
+- Fonte: **Google News RSS** (`https://news.google.com/rss/search?q=...&hl=pt-BR&gl=BR&ceid=BR:pt-419`),
+  pública, gratuita e sem chave. Testado em 12/11/2026: 102 consultas seguidas sem bloqueio.
+- Por banco (lista em `coletor/tributario/bancos.js`, 57 instituições):
+  1. `site:<domínio oficial> ("split payment" OR "reforma tributária" OR IBS OR CBS)`
+     → o que o **próprio banco** publica (blog, portal, central de ajuda).
+     Só entra se o veículo for mesmo o domínio do banco.
+  2. `site:<domínio oficial> (layout OR leiaute OR CNAB OR "manual técnico" OR "240 posições" ...)`
+     → **documentação de layout** do banco (assunto `Layout/Documentação`).
+     Só entra se o TÍTULO tiver termo forte (CNAB, 240/400/750 posições,
+     padrão Febraban, arquivo remessa/retorno) ou "layout/especificação"
+     junto de contexto bancário (arquivo, cobrança, Pix, extrato...).
+     Na imprensa esse assunto é ignorado (lá "leiaute" é nota fiscal).
+     Teste de 18/11/2026: 55 documentos em 13 instituições.
+  3. `"<nome do banco>" (mesmos termos) when:90d` → **imprensa**. Só entra se
+     o nome do banco estiver no título (evita matéria genérica).
+- Extras: Febraban e uma busca de **mercado** só de split payment (cronograma,
+  cobertura, mudanças na lei), sem exigir nome de banco.
+- Análise automática pelo título (`coletor/tributario/analise.js`): assunto,
+  sinais de ação (Layout/Integração, Prazo/Cronograma, Produto/Solução,
+  Regulamentação, Orientação a clientes) e prioridade Alta/Média/Baixa.
+- Publicações com mais de 15 dias entram como **Histórico** (não poluem a fila).
+- Descartados: DuckDuckGo (bloqueia após 2 buscas) e Bing (ignora `site:`).
+- Limite conhecido: o link gravado é o do Google News, que redireciona para a
+  matéria original ao clicar. Instituições pequenas (FIDCs, securitizadoras,
+  fomentos) quase não publicam; a aba mostra isso na visão "Cobertura por banco".
